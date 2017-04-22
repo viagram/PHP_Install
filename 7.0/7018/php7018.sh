@@ -172,8 +172,7 @@ EOF
         chkconfig php-fpm on
         /etc/rc.d/init.d/php-fpm start
     fi
-    if [ "$(Check_OS)" == "centos6" ];then
-        #echo "chkconfig $fpmpath"
+    if [ "$(Check_OS)" == "centos7" ];then
         cat > /usr/lib/systemd/system/php-fpm.service<<-EOF
 [Unit]
 Description=php7018 fpm server
@@ -183,8 +182,8 @@ After=network.target remote-fs.target nss-lookup.target
 Type=forking
 PIDFile=/var/run/php-fpm.pid
 ExecStart=/usr/local/php7018/sbin/php-fpm --daemonize --fpm-config /usr/local/php7018/etc/php-fpm.conf --pid /var/run/php-fpm.pid
-ExecReload=killall php-fpm; sleep 2;/usr/local/php7018/sbin/php-fpm --daemonize --fpm-config /usr/local/php7018/etc/php-fpm.conf --pid /var/run/php-fpm.pid
-ExecStop=killall php-fpm
+Restart=on-failure
+PrivateTmp=true
 
 [Install]
 WantedBy=multi-user.target
