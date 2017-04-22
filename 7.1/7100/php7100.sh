@@ -160,7 +160,7 @@ EOF
 }
 
 function install_php(){
-    wget -O php-7.1.0.tar.gz -c $DOWNLOAD_PHP_URL/kangle/master/php/7.1/7100/php-7.1.0.tar.gz
+    wget -O php-7.1.0.tar.gz -c $DOWNLOAD_PHP_URL/PHP_Install/master/7.1/7100/php-7.1.0.tar.gz
     tar zxf php-7.1.0.tar.gz
     cd php-7.1.0
     CONFIG_CMD="./configure --prefix=$PREFIX --with-config-file-scan-dir=$PREFIX/etc/php.d --with-libdir=$LIB --enable-fastcgi --enable-fpm --with-mysql --with-mysqli --with-pdo-mysql --with-iconv-dir --with-freetype-dir --with-jpeg-dir --with-png-dir --with-zlib --with-libxml-dir=/usr/include/libxml2/libxml --enable-xml --disable-fileinfo --enable-magic-quotes --enable-safe-mode --enable-bcmath --enable-shmop --enable-sysvsem --enable-inline-optimization --with-curl --with-curlwrappers --enable-mbregex --enable-mbstring --enable-ftp --with-gd --enable-gd-native-ttf --with-openssl --enable-pcntl --enable-sockets --with-xmlrpc --enable-zip --enable-soap --with-pear --with-gettext --enable-calendar --with-openssl"
@@ -183,14 +183,14 @@ function install_php(){
         cp php.ini-dist $PREFIX/php-templete.ini
     fi
     if [ ! -f $PREFIX/config.xml ]; then
-        wget -O $PREFIX/lib/config.xml -c $DOWNLOAD_PHP_URL/kangle/master/php/7.1/7100/config.xml
+        wget -O $PREFIX/lib/config.xml -c $DOWNLOAD_PHP_URL/PHP_Install/master/7.1/7100/config.xml
     fi
-    wget -O $PREFIX/lib/php.ini -c $DOWNLOAD_PHP_URL/kangle/master/php/7.1/7100/php.ini
+    wget -O $PREFIX/lib/php.ini -c $DOWNLOAD_PHP_URL/PHP_Install/master/7.1/7100/php.ini
     cd ..
 }
 
 function install_ioncube(){
-    wget -O ioncube-$ZEND_ARCH-7.0.zip -c $DOWNLOAD_PHP_URL/kangle/master/php/7.1/7100/ioncube-$ZEND_ARCH-7.0.zip
+    wget -O ioncube-$ZEND_ARCH-7.0.zip -c $DOWNLOAD_PHP_URL/PHP_Install/master/7.1/7100/ioncube-$ZEND_ARCH-7.0.zip
     unzip ioncube-$ZEND_ARCH-7.0.zip
     phpext_dir=$($PREFIX/bin/php-config --extension-dir)
     \mv ioncube_loader_lin_7.0.so $phpext_dir/ioncube_loader_lin_7.0.so
@@ -198,7 +198,7 @@ function install_ioncube(){
 }
 
 function install_apcu(){
-    wget -O apcu-5.1.7.tar.gz -c $DOWNLOAD_PHP_URL/kangle/master/php/7.1/7100/apcu-5.1.7.tar.gz
+    wget -O apcu-5.1.7.tar.gz -c $DOWNLOAD_PHP_URL/PHP_Install/master/7.1/7100/apcu-5.1.7.tar.gz
     tar zxf apcu-5.1.7.tar.gz
     cd apcu-5.1.7
     $PREFIX/bin/phpize
