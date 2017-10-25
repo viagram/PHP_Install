@@ -32,9 +32,9 @@ if [ ! -d "${cur_dir}" ]; then
 fi
 cd $cur_dir
 
-yum -y install bzip2-devel libxml2-devel curl-devel db4-devel libjpeg-devel libpng-devel freetype-devel pcre-devel zlib-devel sqlite-devel unzip bzip2
-yum -y install mhash-devel openssl-devel php-mcrypt libmcrypt libmcrypt-devel
-yum -y install libtool-ltdl libtool-ltdl-devel
+yum -y install bzip2-devel libxml2-devel curl-devel db4-devel libjpeg-devel libpng-devel freetype-devel \
+pcre-devel zlib-devel sqlite-devel unzip bzip2 mhash-devel openssl-devel php-mcrypt libmcrypt \
+libmcrypt-devel libtool-ltdl libtool-ltdl-devel
 
 cpusu=$(cat /proc/cpuinfo | grep processor | wc -l)
 PREFIX="/usr/local/php-7.1.11"
