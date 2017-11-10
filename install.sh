@@ -133,6 +133,7 @@ else
     fi
     
     printnew -green "更新和安装必备组件包..."
+    yum groupinstall -y "Development Tools"
     if ! yum -y install bzip2-devel libxml2-devel curl-devel db4-devel libjpeg-devel libpng-devel \
     freetype-devel pcre-devel zlib-devel sqlite-devel unzip bzip2 mhash-devel openssl-devel php-mcrypt \
     libmcrypt libmcrypt-devel libtool-ltdl libtool-ltdl-devel wget; then
@@ -175,7 +176,7 @@ else
     else
         printnew -r -green "成功"
     fi
-    \mv -f ${PHP_NAME} PHP && cd PHP || printnew -red "改名失败, 程序终止."
+    cd ${PHP_NAME}
     printnew -green "开始编译${PHP_NAME}..."
     CONFIG_CMD="./configure --prefix=${PREFIX} --with-config-file-scan-dir=${PREFIX}/etc/php.d --with-libdir=${LIB} --enable-fastcgi --enable-fpm --with-mysql --with-mysqli --with-pdo-mysql --with-iconv-dir --with-freetype-dir --with-jpeg-dir --with-png-dir --with-zlib --with-libxml-dir=/usr/include/libxml2/libxml --enable-xml --disable-fileinfo --enable-magic-quotes --enable-safe-mode --enable-bcmath --enable-shmop --enable-sysvsem --enable-inline-optimization --with-curl --with-curlwrappers --enable-mbregex --enable-mbstring --enable-ftp --with-gd --enable-gd-native-ttf --with-openssl --enable-pcntl --enable-sockets --with-xmlrpc --enable-zip --enable-soap --with-pear --with-gettext --enable-calendar --with-openssl"
     if [ -f /usr/include/mcrypt.h ]; then
