@@ -7,7 +7,6 @@ export PATH
 MY_SCRIPT="$(dirname $(readlink -f $0))/$(basename $0)"
 
 echo -e "\033[33m"
-clear
 cat <<'EOF'
 
 ###################################################################
@@ -24,7 +23,6 @@ echo -e "\033[0m"
 
 # Check If You Are Root
 if [[ $EUID -ne 0 ]]; then
-    clear
     printnew -red "错误: 必须以root权限运行此脚本! "
     exit 1
 fi
@@ -100,45 +98,38 @@ function printnew(){
     fi
 }
 
-function fpm_conf(){
-    if [ "$(Check_OS)" == "centos6" ];then
-        cat > /etc/rc.d/init.d/php-fpm<<-EOF
 
-EOF
-        chmod 775 /etc/rc.d/init.d/php-fpm
-        chkconfig --add php-fpm
-        chkconfig php-fpm on
-        /etc/rc.d/init.d/php-fpm start
-    fi
-    if [ "$(Check_OS)" == "centos7" ];then
-        cat > /usr/lib/systemd/system/php-fpm.service<<-EOF
-[Unit]
-Description=php-7.1.11 fpm server
-After=network.target remote-fs.target nss-lookup.target
-
-[Service]
-Type=forking
-PIDFile=/var/run/php-fpm.pid
-ExecStart=/usr/local/php-7.1.11/sbin/php-fpm --daemonize --fpm-config /usr/local/php-7.1.11/etc/php-fpm.conf --pid /var/run/php-fpm.pid
-Restart=on-failure
-PrivateTmp=true
-
-[Install]
-WantedBy=multi-user.target
-EOF
-        chmod 754 /usr/lib/systemd/system/php-fpm.service >/dev/null 2>&1
-        systemctl enable php-fpm.service
-        systemctl daemon-reload
-        systemctl restart php-fpm.service
-    fi
-}
-
+PHP_VER="7.1.11"
+APCU_VER="5.1.8"
+IONCUBE_VER="7.1"
+PREFIX="/usr/local/php-${PHP_VER}"
+DOWNLOAD_URL="https://raw.githubusercontent.com/viagram/PHP_Install/master/${PHP_VER}"
 ####################################################################################################################
+
 if [[ "$(Check_OS)" != "centos7" && "$(Check_OS)" != "centos6" && "$(Check_OS)" != "redhat7" && "$(Check_OS)" != "redhat6" ]]; then
     printnew -red "目前仅支持CentOS6,7及Redhat6,7系统."
     exit 1
 else
+    printnew -green "将进行[PHP-${PHP_VER}]安装进程."
+    read -p "输入[y/n]选择是否继续, 默认为y：" is_go
+    [[ -z "${is_go}" ]] && is_go='y'
+    if [[ ${is_go} != "y" && ${is_go} != "Y" ]]; then
+        printnew -red "用户取消, 程序终止."
+        exit 0
+    fi
+
+    CPUSU=$(cat /proc/cpuinfo | grep processor | wc -l)
+
+    if test $(arch) = "x86_64"; then
+        LIB="lib64"
+        ZEND_ARCH="x86_64"
+    else
+        LIB="lib"
+        ZEND_ARCH="x86"
+    fi
+    
     printnew -green "更新和安装必备组件包..."
+    exit
     if ! yum -y install bzip2-devel libxml2-devel curl-devel db4-devel libjpeg-devel libpng-devel \
     freetype-devel pcre-devel zlib-devel sqlite-devel unzip bzip2 mhash-devel openssl-devel php-mcrypt \
     libmcrypt libmcrypt-devel libtool-ltdl libtool-ltdl-devel; then
@@ -151,21 +142,6 @@ else
         mkdir -p ${cur_dir}
     fi
     cd ${cur_dir}
-
-    PHP_VER="7.1.11"
-    APCU_VER="5.1.8"
-    IONCUBE_VER="7.1"
-    PREFIX="/usr/local/php-${PHP_VER}"
-    CPUSU=$(cat /proc/cpuinfo | grep processor | wc -l)
-    DOWNLOAD_URL="https://raw.githubusercontent.com/viagram/PHP_Install/master/${PHP_VER}"
-    
-    if test $(arch) = "x86_64"; then
-        LIB="lib64"
-        ZEND_ARCH="x86_64"
-    else
-        LIB="lib"
-        ZEND_ARCH="x86"
-    fi
     
     printnew -green "下载php-${PHP_VER}源码包..."
     if ! wget -O php-${PHP_VER}.tar.gz -c ${DOWNLOAD_URL}/php-${PHP_VER}.tar.gz; then
