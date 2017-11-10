@@ -1,0 +1,120 @@
+#! /bin/sh
+### BEGIN INIT INFO
+# Provides:          php-fpm
+# Required-Start:    $remote_fs $network
+# Required-Stop:     $remote_fs $network
+# Default-Start:     2 3 4 5
+# Default-Stop:      0 1 6
+# Short-Description: starts php-fpm
+# Description:       starts the PHP FastCGI Process Manager daemon
+### END INIT INFO
+
+PREFIX="/usr/local/PHP_VERSION"
+PHP_FPM_BIN="${PREFIX}/sbin/php-fpm"
+PHP_FPM_CONF="${PREFIX}/etc/php-fpm.conf"
+PHP_FPM_PID="/var/run/php-fpm.pid"
+PHP_OPTS="--fpm-config $PHP_FPM_CONF --pid ${PHP_FPM_PID}"
+
+wait_for_pid () {
+    try=0
+    while test $try -lt 35 ; do
+        case "$1" in
+            'created')
+            if [[ -f "$2" ]] ; then
+                try=''
+                break
+            fi
+            ;;
+            'removed')
+            if [[ ! -f "$2" ]] ; then
+                try=''
+                break
+            fi
+            ;;
+        esac
+        echo -n .
+        try=$(expr $try + 1)
+        sleep 1
+    done
+}
+
+case "$1" in
+    start)
+        echo -n "启动 PHP 服务: "
+        ${PHP_FPM_BIN} --daemonize ${PHP_OPTS}
+        if [[ "$?" -ne 0 ]] ; then
+            echo -e "\033[31m失败.\033[0m"
+            exit 1
+        fi
+        wait_for_pid created ${PHP_FPM_PID}
+        if [[ -n "$try" ]] ; then
+            echo -e "\033[31m失败.\033[0m"
+            exit 1
+        else
+            echo -e "\033[32m成功.\033[0m"
+        fi
+    ;;
+    stop)
+        echo -n "停止 PHP 服务: "
+        if [[ ! -r ${PHP_FPM_PID} ]] ; then
+            echo -e "\033[31m失败, 貌似没有运行.\033[0m"
+            exit 1
+        fi
+        kill -QUIT $(cat ${PHP_FPM_PID})
+        wait_for_pid removed ${PHP_FPM_PID}
+        if [[ -n "$try" ]] ; then
+            echo -e "\033[31m失败, 建议强制退出.\033[0m"
+            exit 1
+        else
+            echo -e "\033[32m成功.\033[0m"
+        fi
+    ;;
+    status)
+        echo -n "当前 PHP 状态: "
+        if [[ ! -r ${PHP_FPM_PID} ]] ; then
+            echo "已停止"
+            exit 0
+        fi
+        PID=$(cat ${PHP_FPM_PID})
+        if ps -p $PID | grep -q $PID; then
+            echo -e "\033[32m运行中.(pid $PID)\033[0m"
+        else
+            echo -e "\033[31m已停止, 但pid文件却存在.\033[0m"
+        fi
+    ;;
+    force-quit)
+        echo -n "强制停止 PHP 服务: "
+        if [[ ! -r ${PHP_FPM_PID} ]] ; then
+            echo -e "\033[31m失败, 没有找到pid文件, 请检查服务是否运行中.\033[0m"
+            exit 1
+        fi
+        kill -TERM $(cat ${PHP_FPM_PID})
+        wait_for_pid removed ${PHP_FPM_PID}
+        if [[ -n "$try" ]] ; then
+            echo -e "\033[31m失败.\033[0m"
+            exit 1
+        else
+            echo -e "\033[32m成功.\033[0m"
+        fi
+    ;;
+    restart)
+        $0 stop
+        $0 start
+    ;;
+    reload)
+        echo -n "重载 PHP 服务: "
+        if [[ ! -r ${PHP_FPM_PID} ]] ; then
+            echo -e "\033[31m失败, 没有找到pid文件, 请检查服务是否运行中.\033[0m"
+            exit 1
+        fi
+        kill -USR2 $(cat ${PHP_FPM_PID})
+        echo -e "\033[32m成功.\033[0m"
+    ;;
+    configtest)
+        ${PHP_FPM_BIN} -t
+    ;;
+    *)
+        echo "Usage: $0 {start|stop|force-quit|restart|reload|status|configtest}"
+        exit 1
+    ;;
+esac
