@@ -195,43 +195,8 @@ else
             exit 1
         fi
     fi
-    
     phpext_dir=$(${PREFIX}/bin/php-config --extension-dir)
     sed -i "s%This_php_extension_dir%${phpext_dir}%g" ${PREFIX}/lib/php.ini
-    
-    printnew -green "下载php服务配置文件..."
-    if [[ "$(Check_OS)" == "centos7" || "$(Check_OS)" == "redhat7" ]]; then
-        if ! wget -O php-fpm.service -c ${DOWNLOAD_URL}/CentOS-7; then
-            printnew -red "下载失败, 程序终止."
-            exit 1
-        else
-            sed -i "s/PHP_VERSION/php-${PHP_VER}/g" ./php-fpm.service
-            if \cp ./php-fpm.service /usr/lib/systemd/system/php-fpm.service; then
-                chmod 754 /usr/lib/systemd/system/php-fpm.service >/dev/null 2>&1
-                systemctl enable php-fpm.service
-                systemctl daemon-reload
-                systemctl start php-fpm.service
-            else
-                printnew -red "安装服务失败."
-            fi
-        fi
-    fi
-    if [[ "$(Check_OS)" == "centos6" || "$(Check_OS)" == "redhat6" ]]; then
-        if ! wget -O php-fpm -c ${DOWNLOAD_URL}/CentOS-6; then
-            printnew -red "下载失败, 程序终止."
-            exit 1
-        else
-            sed -i "s/PHP_VERSION/php-${PHP_VER}/g" ./php-fpm
-            if \cp ./php-fpm.service /usr/lib/systemd/system/php-fpm.service; then
-                chmod 754 /etc/rc.d/init.d/php-fpm >/dev/null 2>&1
-                chkconfig --add php-fpm
-                chkconfig php-fpm on
-                /etc/rc.d/init.d/php-fpm start
-            else
-                printnew -red "安装服务失败."
-            fi
-        fi
-    fi
     cd ..
     
     # 复制ioncube扩展
@@ -269,7 +234,39 @@ else
     cd ..
     
     # 安装php-fpm服务
-    printnew -green "安装php-fpm服务..."
+    printnew -green "下载/安装php服务..."
+    if [[ "$(Check_OS)" == "centos7" || "$(Check_OS)" == "redhat7" ]]; then
+        if ! wget -O php-fpm.service -c ${DOWNLOAD_URL}/CentOS-7; then
+            printnew -red "下载失败, 程序终止."
+            exit 1
+        else
+            sed -i "s/PHP_VERSION/php-${PHP_VER}/g" ./php-fpm.service
+            if \cp ./php-fpm.service /usr/lib/systemd/system/php-fpm.service; then
+                chmod 754 /usr/lib/systemd/system/php-fpm.service >/dev/null 2>&1
+                systemctl enable php-fpm.service
+                systemctl daemon-reload
+                systemctl start php-fpm.service
+            else
+                printnew -red "安装服务失败."
+            fi
+        fi
+    fi
+    if [[ "$(Check_OS)" == "centos6" || "$(Check_OS)" == "redhat6" ]]; then
+        if ! wget -O php-fpm -c ${DOWNLOAD_URL}/CentOS-6; then
+            printnew -red "下载失败, 程序终止."
+            exit 1
+        else
+            sed -i "s/PHP_VERSION/php-${PHP_VER}/g" ./php-fpm
+            if \cp ./php-fpm.service /usr/lib/systemd/system/php-fpm.service; then
+                chmod 754 /etc/rc.d/init.d/php-fpm >/dev/null 2>&1
+                chkconfig --add php-fpm
+                chkconfig php-fpm on
+                /etc/rc.d/init.d/php-fpm start
+            else
+                printnew -red "安装服务失败."
+            fi
+        fi
+    fi
     
     cd ${cur_dir}/.. && rm -rf ${cur_dir}
     rm -f ${MY_SCRIPT}
