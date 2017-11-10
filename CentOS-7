@@ -1,0 +1,13 @@
+[Unit]
+Description=PHP_VERSION fpm server
+After=network.target remote-fs.target nss-lookup.target
+
+[Service]
+Type=forking
+PIDFile=/var/run/php-fpm.pid
+ExecStart=/usr/local/PHP_VERSION/sbin/php-fpm --daemonize --fpm-config /usr/local/PHP_VERSION/etc/php-fpm.conf --pid /var/run/php-fpm.pid
+Restart=on-failure
+PrivateTmp=true
+
+[Install]
+WantedBy=multi-user.target
