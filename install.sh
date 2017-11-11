@@ -104,24 +104,30 @@ if [[ "$(Check_OS)" != "centos7" && "$(Check_OS)" != "centos6" && "$(Check_OS)" 
     printnew -red "目前仅支持CentOS6,7及Redhat6,7系统."
     exit 1
 else
-    printnew -green "将进行[PHP]安装进程."
-    read -p "输入[y/n]选择是否继续, 默认为y：" is_go
-    [[ -z "${is_go}" ]] && is_go='y'
-    if [[ ${is_go} != "y" && ${is_go} != "Y" ]]; then
-        printnew -red "用户取消, 程序终止."
-        exit 0
-    fi
-
     printnew -a -green "获取版本信息..."
     DOWNLOAD_URL="https://raw.githubusercontent.com/viagram/PHP_Install/master/"
     PHP_NAME=$(curl -sk https://secure.php.net/downloads.php  | egrep -io '/get/php-7.1.[0-9]{1,2}.tar.gz/from/a/mirror' | egrep -io 'php-7.1.[0-9]{1,2}')
     PREFIX="/usr/local/${PHP_NAME}"
     IONCUBE_VER=$(echo ${PHP_NAME} | egrep -io 'php-[0-9]{1,2}.[0-9]{1,2}' | egrep -io '[0-9]{1,2}.[0-9]{1,2}')
     CPUSU=$(cat /proc/cpuinfo | grep processor | wc -l)
+
     if [[ -z ${IONCUBE_VER} ]]; then
-        printnew -r -red "获取版本信息失败, 程序终止."
+        printnew -r -red "失败, 程序终止."
+        exit 1
     else
         printnew -r -green "成功"
+        if [[ -x "${PREFIX}/bin/php" ]]; then
+            printnew -green "检测到[${PHP_NAME}]已安装, 是否再次安装?"
+        else
+            printnew -green "将进行[${PHP_NAME}]安装进程."
+        fi
+    fi
+
+    read -p "输入[y/n]选择是否继续, 默认为y：" is_go
+    [[ -z "${is_go}" ]] && is_go='y'
+    if [[ ${is_go} != "y" && ${is_go} != "Y" ]]; then
+        printnew -red "用户取消, 程序终止."
+        exit 0
     fi
 
     if test $(arch) = "x86_64"; then
@@ -148,12 +154,14 @@ else
     cd ${cur_dir}
     
     printnew -green "下载${PHP_NAME}源码包..."
+    [[ -f ${PHP_NAME}.tar.gz ]] && rm -f ${PHP_NAME}.tar.gz
     if ! wget -O ${PHP_NAME}.tar.gz -c http://am1.php.net/get/${PHP_NAME}.tar.gz/from/this/mirror --no-check-certificate; then
         printnew -red "下载失败, 程序终止."
         exit 1
     fi
     
     printnew -green "下载ioncube扩展包..."
+    [[ -f ioncube_loaders_lin_${ZEND_ARCH}.tar.gz ]] && rm -f ioncube_loaders_lin_${ZEND_ARCH}.tar.gz
     if ! wget -O ioncube_loaders_lin_${ZEND_ARCH}.tar.gz -c https://downloads.ioncube.com/loader_downloads/ioncube_loaders_lin_${ZEND_ARCH}.tar.gz; then
         printnew -red "下载失败, 程序终止."
         exit 1
@@ -163,6 +171,7 @@ else
     APCU_URL=$(curl -sk https://pecl.php.net/package/APCu | egrep -io '/get/apcu-([0-9]{1,2}.){3}tgz' | head -n 1 | awk '{print "https://pecl.php.net"$0}')
     APCU_FILE=$(basename ${APCU_URL})
     APCU_DIR=${APCU_FILE%.*}
+    [[ -f ${APCU_FILE} ]] && rm -f ${APCU_FILE}
     if ! wget -O ${APCU_FILE} -c ${APCU_URL}; then
         printnew -red "下载失败, 程序终止."
         exit 1
@@ -198,11 +207,10 @@ else
     mkdir -p ${PREFIX}/etc/php.d
     \cp ${PREFIX}/etc/php-fpm.conf.default ${PREFIX}/etc/php-fpm.conf
     \cp ${PREFIX}/etc/php-fpm.d/www.conf.default ${PREFIX}/etc/php-fpm.d/www.conf
-    if [ ! -f ${PREFIX}/lib/php.ini ]; then
-        if ! wget -O ${PREFIX}/lib/php.ini -c ${DOWNLOAD_URL}/php.ini; then
-            printnew "下载php.ini失败, 程序终止."
-            exit 1
-        fi
+    [[ -f ${PREFIX}/lib/php.ini ]] && rm -f ${PREFIX}/lib/php.ini
+    if ! wget -O ${PREFIX}/lib/php.ini -c ${DOWNLOAD_URL}/php.ini; then
+        printnew "下载php.ini失败, 程序终止."
+        exit 1
     fi
     phpext_dir=$(${PREFIX}/bin/php-config --extension-dir)
     sed -i "s%This_php_extension_dir%${phpext_dir}%g" ${PREFIX}/lib/php.ini
@@ -245,6 +253,7 @@ else
     # 安装php-fpm服务
     printnew -green "下载/安装php服务..."
     if [[ "$(Check_OS)" == "centos7" || "$(Check_OS)" == "redhat7" ]]; then
+        [[ -f php-fpm.service ]] && rm -f php-fpm.service
         if ! wget -O php-fpm.service -c ${DOWNLOAD_URL}/CentOS-7; then
             printnew -red "下载失败, 程序终止."
             exit 1
@@ -261,6 +270,7 @@ else
         fi
     fi
     if [[ "$(Check_OS)" == "centos6" || "$(Check_OS)" == "redhat6" ]]; then
+        [[ -f php-fpm ]] && rm -f php-fpm
         if ! wget -O php-fpm -c ${DOWNLOAD_URL}/CentOS-6; then
             printnew -red "下载失败, 程序终止."
             exit 1
