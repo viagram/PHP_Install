@@ -117,9 +117,9 @@ else
     else
         printnew -r -green "成功"
         if [[ -x "${PREFIX}/bin/php" ]]; then
-            printnew -green "检测到[${PHP_NAME}]已安装, 是否再次安装?"
+            printnew -green "检测到 [${PHP_NAME}] 已安装, 是否再次安装?"
         else
-            printnew -green "将进行[${PHP_NAME}]安装进程."
+            printnew -green "将进行 [${PHP_NAME}] 安装进程."
         fi
     fi
 
@@ -254,7 +254,7 @@ else
     printnew -green "下载/安装php服务..."
     if [[ "$(Check_OS)" == "centos7" || "$(Check_OS)" == "redhat7" ]]; then
         [[ -f php-fpm.service ]] && rm -f php-fpm.service
-        if ! wget -O php-fpm.service -c ${DOWNLOAD_URL}/CentOS-7; then
+        if ! wget -O php-fpm.service -c ${DOWNLOAD_URL}CentOS-7; then
             printnew -red "下载失败, 程序终止."
             exit 1
         else
@@ -271,7 +271,7 @@ else
     fi
     if [[ "$(Check_OS)" == "centos6" || "$(Check_OS)" == "redhat6" ]]; then
         [[ -f php-fpm ]] && rm -f php-fpm
-        if ! wget -O php-fpm -c ${DOWNLOAD_URL}/CentOS-6; then
+        if ! wget -O php-fpm -c ${DOWNLOAD_URL}CentOS-6; then
             printnew -red "下载失败, 程序终止."
             exit 1
         else
