@@ -106,9 +106,9 @@ if [[ "$(Check_OS)" != "centos7" && "$(Check_OS)" != "centos6" && "$(Check_OS)" 
 else
     printnew -a -green "获取版本信息..."
     DOWNLOAD_URL="https://raw.githubusercontent.com/viagram/PHP_Install/master/"
-    PHP_NAME=$(curl -sk https://secure.php.net/downloads.php  | egrep -io '/get/php-7.1.[0-9]{1,2}.tar.gz/from/a/mirror' | egrep -io 'php-7.1.[0-9]{1,2}')
+    PHP_NAME=$(curl -sk https://secure.php.net/downloads.php | egrep -io '/get/php-([0-9]{1,2}.){3}tar.gz/from/a/mirror' | sort -Vu | awk 'END{print}' | egrep -io '([0-9]{1,2}.){2}[0-9]{1,2}')
     PREFIX="/usr/local/${PHP_NAME}"
-    IONCUBE_VER=$(echo ${PHP_NAME} | egrep -io 'php-[0-9]{1,2}.[0-9]{1,2}' | egrep -io '[0-9]{1,2}.[0-9]{1,2}')
+    IONCUBE_VER=$(echo ${PHP_NAME} | egrep -io 'php-[0-9]{1,2}.[0-9]{1,2}' | egrep -io '^[0-9]{1,2}.[0-9]{1,2}')
     CPUSU=$(cat /proc/cpuinfo | grep processor | wc -l)
 
     if [[ -z ${IONCUBE_VER} ]]; then
