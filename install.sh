@@ -106,9 +106,17 @@ if [[ "$(Check_OS)" != "centos7" && "$(Check_OS)" != "centos6" && "$(Check_OS)" 
 else
     printnew -a -green "获取版本信息..."
     DOWNLOAD_URL="https://raw.githubusercontent.com/viagram/PHP_Install/master/"
-    PHP_NAME=$(curl -sk https://secure.php.net/downloads.php | egrep -io '/get/php-([0-9]{1,2}.){3}tar.gz/from/a/mirror' | sort -Vu | awk 'END{print}' | egrep -io '([0-9]{1,2}.){2}[0-9]{1,2}')
+    if [[ -n ${1} ]]; then
+        PHP_NAME='php-'${1}
+    else
+        PHP_NAME=$(curl -sk https://secure.php.net/downloads.php | egrep -io '/get/php-([0-9]{1,2}.){3}tar.gz/from/a/mirror' | sort -Vu | awk 'END{print}' | egrep -io 'php-([0-9]{1,2}.){2}[0-9]{1,2}')
+    fi
+    if ! echo ${PHP_NAME} | egrep -io 'php-([0-9]{1,2}.){2}[0-9]{1,2}' >/dev/null 2>&1; then
+        printnew -r -red "失败, 程序终止."
+        exit 1
+    fi
     PREFIX="/usr/local/${PHP_NAME}"
-    IONCUBE_VER=$(echo ${PHP_NAME} | egrep -io 'php-[0-9]{1,2}.[0-9]{1,2}' | egrep -io '^[0-9]{1,2}.[0-9]{1,2}')
+    IONCUBE_VER=$(echo ${PHP_NAME} | sed 's/php-//g' | egrep -io '^[0-9]{1,2}.[0-9]{1,2}')
     CPUSU=$(cat /proc/cpuinfo | grep processor | wc -l)
 
     if [[ -z ${IONCUBE_VER} ]]; then
@@ -155,7 +163,8 @@ else
     
     printnew -green "下载${PHP_NAME}源码包..."
     [[ -f ${PHP_NAME}.tar.gz ]] && rm -f ${PHP_NAME}.tar.gz
-    if ! wget -O ${PHP_NAME}.tar.gz -c http://am1.php.net/get/${PHP_NAME}.tar.gz/from/this/mirror --no-check-certificate; then
+    #if ! wget -O ${PHP_NAME}.tar.gz -c http://am1.php.net/get/${PHP_NAME}.tar.gz/from/this/mirror --no-check-certificate; then
+    if ! wget -O ${PHP_NAME}.tar.gz -c https://secure.php.net/distributions/${PHP_NAME}.tar.gz --no-check-certificate; then
         printnew -red "下载失败, 程序终止."
         exit 1
     fi
