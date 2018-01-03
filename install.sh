@@ -109,8 +109,8 @@ else
     if [[ -n ${1} ]]; then
         PHP_NAME='php-'${1}
     else
-        #PHP_NAME=$(curl -sk https://secure.php.net/downloads.php | egrep -io '/get/php-([0-9]{1,2}.){3}tar.gz/from/a/mirror' | sort -Vu | awk 'END{print}' | egrep -io 'php-([0-9]{1,2}.){2}[0-9]{1,2}')
-        PHP_NAME=$(curl -sk https://github.com/php/php-src/releases | egrep -io '/tag/php-7.1[0-9.]*' | sort -Vu | awk 'END{print}' | egrep -io 'php-([0-9]{1,2}.){2}[0-9]{1,2}')
+        PHP_NAME=$(curl -sk https://secure.php.net/downloads.php | egrep -io '/get/php-([0-9]{1,2}.){3}tar.gz/from/a/mirror' | sort -Vu | awk 'END{print}' | egrep -io 'php-([0-9]{1,2}.){2}[0-9]{1,2}')
+        #PHP_NAME=$(curl -sk https://github.com/php/php-src/releases | egrep -io '/tag/php-7.1[0-9.]*' | sort -Vu | awk 'END{print}' | egrep -io 'php-([0-9]{1,2}.){2}[0-9]{1,2}')
     fi
     if ! echo ${PHP_NAME} | egrep -io 'php-([0-9]{1,2}.){2}[0-9]{1,2}' >/dev/null 2>&1; then
         printnew -r -red "失败, 程序终止."
@@ -164,8 +164,8 @@ else
     
     printnew -green "下载${PHP_NAME}源码包..."
     [[ -f ${PHP_NAME}.tar.gz ]] && rm -f ${PHP_NAME}.tar.gz
-    #if ! wget -O ${PHP_NAME}.tar.gz -c https://secure.php.net/distributions/${PHP_NAME}.tar.gz --no-check-certificate; then
-    if ! wget -O ${PHP_NAME}.tar.gz -c https://github.com/php/php-src/archive/${PHP_NAME}.tar.gz --no-check-certificate; then
+    if ! wget -O ${PHP_NAME}.tar.gz -c https://secure.php.net/distributions/${PHP_NAME}.tar.gz --no-check-certificate; then
+    #if ! wget -O ${PHP_NAME}.tar.gz -c https://github.com/php/php-src/archive/${PHP_NAME}.tar.gz --no-check-certificate; then
         printnew -red "下载失败, 程序终止."
         exit 1
     fi
@@ -195,8 +195,8 @@ else
     else
         printnew -r -green "成功"
     fi
-    #cd ${PHP_NAME}
-    cd php-src-${PHP_NAME}
+    cd ${PHP_NAME}
+    #cd php-src-${PHP_NAME}
     printnew -green "开始编译${PHP_NAME}..."
     CONFIG_CMD="./configure --prefix=${PREFIX} --with-config-file-scan-dir=${PREFIX}/etc/php.d --with-libdir=${LIB} --enable-fastcgi --enable-fpm --with-mysql --with-mysqli --with-pdo-mysql --with-iconv-dir --with-freetype-dir --with-jpeg-dir --with-png-dir --with-zlib --with-libxml-dir=/usr/include/libxml2/libxml --enable-xml --disable-fileinfo --enable-magic-quotes --enable-safe-mode --enable-bcmath --enable-shmop --enable-sysvsem --enable-inline-optimization --with-curl --with-curlwrappers --enable-mbregex --enable-mbstring --enable-ftp --with-gd --enable-gd-native-ttf --with-openssl --enable-pcntl --enable-sockets --with-xmlrpc --enable-zip --enable-soap --with-pear --with-gettext --enable-calendar --with-openssl"
     if [ -f /usr/include/mcrypt.h ]; then
