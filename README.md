@@ -9,10 +9,10 @@
 
 安装方法1:
 
-    wget -O install.sh https://raw.githubusercontent.com/viagram/PHP_Install/maste/install.sh && sh install.sh
+    wget -O install.sh https://raw.githubusercontent.com/viagram/PHP_Install/master/install.sh && sh install.sh
 
 安装方法2:
 
-    curl -sk -o install.sh https://raw.githubusercontent.com/viagram/PHP_Install/maste/install.sh && sh install.sh
+    curl -sk -o install.sh https://raw.githubusercontent.com/viagram/PHP_Install/master/install.sh && sh install.sh
 
 按提示操作, 基本按几下回车键即可.
