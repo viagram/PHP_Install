@@ -238,6 +238,7 @@ else
         exit 1
     fi
     chmod +x $phpext_dir/ioncube_loader_lin_${IONCUBE_VER}.so
+    sed -i "s%ioncube_loader_lin_ver.so%ioncube_loader_lin_${IONCUBE_VER}.so%g" ${PREFIX}/lib/php.ini
     
     # 编译并安装apcu扩展
     printnew -green "安装 apcu 扩展..."
