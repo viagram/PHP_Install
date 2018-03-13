@@ -7,9 +7,11 @@
   
 默认安装目前最新版本的PHP-7.x, ioncube_loaders及APCu
 
-安装方法:
+安装方法A:
 
     git clone https://github.com/viagram/PHP_Install.git && cd PHP_Install && sh install.sh
+
+安装方法B:
 
     curl -sk https://codeload.github.com/viagram/PHP_Install/zip/master -o master.zip && unzip master.zip && cd PHP_Install-master && sh install.sh
 
