@@ -87,12 +87,10 @@ if [[ "$(Check_OS)" != "centos7" && "$(Check_OS)" != "centos6" && "$(Check_OS)" 
     exit 1
 else
     printnew -a -green "获取版本信息..."
-    DOWNLOAD_URL="https://raw.githubusercontent.com/viagram/PHP_Install/master/"
     if [[ -n ${1} ]]; then
         PHP_NAME='php-'${1}
     else
-        PHP_NAME=$(curl -sk https://secure.php.net/downloads.php | egrep -io '/get/php-([0-9]{1,2}.){3}tar.gz/from/a/mirror' | sort -Vu | awk 'END{print}' | egrep -io 'php-([0-9]{1,2}.){2}[0-9]{1,2}')
-        #PHP_NAME=$(curl -sk https://github.com/php/php-src/releases | egrep -io '/tag/php-7.1[0-9.]*' | sort -Vu | awk 'END{print}' | egrep -io 'php-([0-9]{1,2}.){2}[0-9]{1,2}')
+        PHP_NAME=$(curl -sk --retry 3 --speed-time 10 --speed-limit 1 --connect-timeout 10 https://secure.php.net/downloads.php | egrep -io '/get/php-([0-9]{1,2}.){3}tar.gz/from/a/mirror' | sort -Vu | awk 'END{print}' | egrep -io 'php-([0-9]{1,2}.){2}[0-9]{1,2}')
     fi
     if ! echo ${PHP_NAME} | egrep -io 'php-([0-9]{1,2}.){2}[0-9]{1,2}' >/dev/null 2>&1; then
         printnew -red "失败, 程序终止."
@@ -146,25 +144,24 @@ else
     
     printnew -green "下载${PHP_NAME}源码包..."
     [[ -f ${PHP_NAME}.tar.gz ]] && rm -f ${PHP_NAME}.tar.gz
-    if ! wget -O ${PHP_NAME}.tar.gz -c https://secure.php.net/distributions/${PHP_NAME}.tar.gz --no-check-certificate; then
-    #if ! wget -O ${PHP_NAME}.tar.gz -c https://github.com/php/php-src/archive/${PHP_NAME}.tar.gz --no-check-certificate; then
+    if ! wget -O ${PHP_NAME}.tar.gz -c https://secure.php.net/distributions/${PHP_NAME}.tar.gz --no-check-certificate --tries=5 --timeout=10; then
         printnew -red "下载失败, 程序终止."
         exit 1
     fi
     
     printnew -green "下载ioncube扩展包..."
     [[ -f ioncube_loaders_lin_${ZEND_ARCH}.tar.gz ]] && rm -f ioncube_loaders_lin_${ZEND_ARCH}.tar.gz
-    if ! wget -O ioncube_loaders_lin_${ZEND_ARCH}.tar.gz -c https://downloads.ioncube.com/loader_downloads/ioncube_loaders_lin_${ZEND_ARCH}.tar.gz; then
+    if ! wget -O ioncube_loaders_lin_${ZEND_ARCH}.tar.gz -c https://downloads.ioncube.com/loader_downloads/ioncube_loaders_lin_${ZEND_ARCH}.tar.gz --tries=5 --timeout=10; then
         printnew -red "下载失败, 程序终止."
         exit 1
     fi
     
     printnew -green "下载apcu扩展包..."
-    APCU_URL=$(curl -sk https://pecl.php.net/package/APCu | egrep -io '/get/apcu-([0-9]{1,2}.){3}tgz' | head -n 1 | awk '{print "https://pecl.php.net"$0}')
+    APCU_URL=$(curl -sk --retry 3 --speed-time 10 --speed-limit 1 --connect-timeout 10 https://pecl.php.net/package/APCu | egrep -io '/get/apcu-([0-9]{1,2}.){3}tgz' | head -n 1 | awk '{print "https://pecl.php.net"$0}')
     APCU_FILE=$(basename ${APCU_URL})
     APCU_DIR=${APCU_FILE%.*}
     [[ -f ${APCU_FILE} ]] && rm -f ${APCU_FILE}
-    if ! wget -O ${APCU_FILE} -c ${APCU_URL}; then
+    if ! wget -O ${APCU_FILE} -c ${APCU_URL} --tries=5 --timeout=10; then
         printnew -red "下载失败, 程序终止."
         exit 1
     fi
@@ -178,14 +175,13 @@ else
         printnew -green "成功"
     fi
     cd ${PHP_NAME}
-    #cd php-src-${PHP_NAME}
     printnew -green "开始编译${PHP_NAME}..."
     CONFIG_CMD="./configure --prefix=${PREFIX} --with-config-file-scan-dir=${PREFIX}/etc/php.d --with-libdir=${LIB} --enable-fastcgi --enable-fpm --with-mysql --with-mysqli --with-pdo-mysql --with-iconv-dir --with-freetype-dir --with-jpeg-dir --with-png-dir --with-zlib --with-libxml-dir=/usr/include/libxml2/libxml --enable-xml --disable-fileinfo --enable-magic-quotes --enable-safe-mode --enable-bcmath --enable-shmop --enable-sysvsem --enable-inline-optimization --with-curl --with-curlwrappers --enable-mbregex --enable-mbstring --enable-ftp --with-gd --enable-gd-native-ttf --with-openssl --enable-pcntl --enable-sockets --with-xmlrpc --enable-zip --enable-soap --with-pear --with-gettext --enable-calendar --with-openssl"
     if [ -f /usr/include/mcrypt.h ]; then
         CONFIG_CMD+=" --with-mcrypt"
     fi
-    if ! $CONFIG_CMD; then
-        echo $CONFIG_CMD
+    if ! ${CONFIG_CMD}; then
+        echo ${CONFIG_CMD}
         printnew -red "配置${PHP_NAME}失败, 程序终止."
         exit 1
     fi
@@ -197,17 +193,16 @@ else
         printnew -red "安装${PHP_NAME}失败, 程序终止."
         exit 1
     fi
+
+    cd ..
     mkdir -p ${PREFIX}/etc/php.d
-    \cp ${PREFIX}/etc/php-fpm.conf.default ${PREFIX}/etc/php-fpm.conf
-    \cp ${PREFIX}/etc/php-fpm.d/www.conf.default ${PREFIX}/etc/php-fpm.d/www.conf
-    [[ -f ${PREFIX}/lib/php.ini ]] && rm -f ${PREFIX}/lib/php.ini
-    if ! wget -O ${PREFIX}/lib/php.ini -c ${DOWNLOAD_URL}/php.ini; then
-        printnew "下载php.ini失败, 程序终止."
-        exit 1
-    fi
+    cp -rf ${PREFIX}/etc/php-fpm.conf.default ${PREFIX}/etc/php-fpm.conf
+    cp -rf ${PREFIX}/etc/php-fpm.d/www.conf.default ${PREFIX}/etc/php-fpm.d/www.conf
+    cp -rf php.ini ${PREFIX}/lib/php.ini
+
     phpext_dir=$(${PREFIX}/bin/php-config --extension-dir)
     sed -i "s%This_php_extension_dir%${phpext_dir}%g" ${PREFIX}/lib/php.ini
-    cd ..
+
     
     # 复制ioncube扩展
     printnew -green "安装 ioncube 扩展..."
@@ -215,11 +210,11 @@ else
         printnew -red "解压ioncube_loaders_lin_${ZEND_ARCH}失败, 程序终止."
         exit 1
     fi
-    if ! \cp -f ioncube/ioncube_loader_lin_${IONCUBE_VER}.so ${phpext_dir}/ioncube_loader_lin_${IONCUBE_VER}.so; then
+    if ! cp -rf ioncube/ioncube_loader_lin_${IONCUBE_VER}.so ${phpext_dir}/ioncube_loader_lin_${IONCUBE_VER}.so; then
         printnew -red "安装ioncube_loader_lin_${IONCUBE_VER}失败, 程序终止."
         exit 1
     fi
-    chmod +x $phpext_dir/ioncube_loader_lin_${IONCUBE_VER}.so
+    chmod +x ${phpext_dir}/ioncube_loader_lin_${IONCUBE_VER}.so
     sed -i "s%ioncube_loader_lin_ver.so%ioncube_loader_lin_${IONCUBE_VER}.so%g" ${PREFIX}/lib/php.ini
     
     # 编译并安装apcu扩展
@@ -247,45 +242,38 @@ else
     # 安装php-fpm服务
     printnew -green "下载/安装php服务..."
     if [[ "$(Check_OS)" == "centos7" || "$(Check_OS)" == "redhat7" ]]; then
-        [[ -f php-fpm.service ]] && rm -f php-fpm.service
-        if ! wget -O php-fpm.service -c ${DOWNLOAD_URL}CentOS-7; then
-            printnew -red "下载失败, 程序终止."
-            exit 1
-        else
-            sed -i "s/PHP_VERSION/${PHP_NAME}/g" ./php-fpm.service
-            if \cp ./php-fpm.service /usr/lib/systemd/system/php-fpm.service; then
-                chmod 754 /usr/lib/systemd/system/php-fpm.service >/dev/null 2>&1
-                systemctl enable php-fpm.service
-                systemctl daemon-reload
-                if ! systemctl status php-fpm.service; then
-                    systemctl start php-fpm.service
-                else
-                    systemctl restart php-fpm.service
-                fi
+        sed -i "s/PHP_VERSION/${PHP_NAME}/g" CentOS-7
+        if cp -rf CentOS-7 /usr/lib/systemd/system/php-fpm.service; then
+            chmod 754 /usr/lib/systemd/system/php-fpm.service >/dev/null 2>&1
+            systemctl enable php-fpm.service
+            systemctl daemon-reload
+            if ! systemctl status php-fpm.service; then
+                systemctl start php-fpm.service
             else
-                printnew -red "安装服务失败."
+                systemctl restart php-fpm.service
             fi
+        else
+            printnew -red "安装服务失败."
         fi
     fi
     if [[ "$(Check_OS)" == "centos6" || "$(Check_OS)" == "redhat6" ]]; then
-        [[ -f php-fpm ]] && rm -f php-fpm
-        if ! wget -O php-fpm -c ${DOWNLOAD_URL}CentOS-6; then
-            printnew -red "下载失败, 程序终止."
-            exit 1
-        else
-            sed -i "s/PHP_VERSION/${PHP_NAME}/g" ./php-fpm
-            if \cp ./php-fpm.service /usr/lib/systemd/system/php-fpm.service; then
-                chmod 754 /etc/rc.d/init.d/php-fpm >/dev/null 2>&1
-                chkconfig --add php-fpm
-                chkconfig php-fpm on
-                /etc/rc.d/init.d/php-fpm start
+        sed -i "s/PHP_VERSION/${PHP_NAME}/g" CentOS-6
+        if cp -rf CentOS-6 /etc/rc.d/init.d/php-fpm; then
+            chmod 754 /etc/rc.d/init.d/php-fpm >/dev/null 2>&1
+            chkconfig --add php-fpm
+            chkconfig php-fpm on
+            if /etc/rc.d/init.d/php-fpm status >/dev/null 2>&1; then
+                /etc/rc.d/init.d/php-fpm restart
             else
-                printnew -red "安装服务失败."
+                /etc/rc.d/init.d/php-fpm start
             fi
+        else
+            printnew -red "安装服务失败."
         fi
     fi
     
     cd ${cur_dir}/.. && rm -rf ${cur_dir}
+    ls | egrep -io 'php-([0-9]{1,2}.){2}[0-9]{1,2}' | egrep -iv ${PHP_NAME} | xargs rm -rf
     rm -f ${MY_SCRIPT}
     printnew -green "${PHP_NAME} installed."
 fi
