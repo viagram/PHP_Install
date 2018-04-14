@@ -81,7 +81,8 @@ function printnew(){
 }
 
 ####################################################################################################################
-
+cur_dir=$(pwd)
+    
 if [[ "$(Check_OS)" != "centos7" && "$(Check_OS)" != "centos6" && "$(Check_OS)" != "redhat7" && "$(Check_OS)" != "redhat6" ]]; then
     printnew -red "目前仅支持CentOS6,7及Redhat6,7系统."
     exit 1
@@ -116,6 +117,7 @@ else
     [[ -z "${is_go}" ]] && is_go='y'
     if [[ ${is_go} != "y" && ${is_go} != "Y" ]]; then
         printnew -red "用户取消, 程序终止."
+        cd ${cur_dir}/.. && rm -rf ${cur_dir}
         exit 0
     fi
 
@@ -135,9 +137,6 @@ else
         printnew -red "更新和安装必备组件包失败, 程序终止."
         exit 1
     fi
-    
-    cur_dir=$(pwd)
-    cd ${cur_dir}
     
     printnew -green "下载${PHP_NAME}源码包..."
     [[ -f ${PHP_NAME}.tar.gz ]] && rm -f ${PHP_NAME}.tar.gz
