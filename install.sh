@@ -136,10 +136,7 @@ else
         exit 1
     fi
     
-    cur_dir=$(pwd)/php_install
-    if [ ! -d "${cur_dir}" ]; then
-        mkdir -p ${cur_dir}
-    fi
+    cur_dir=$(pwd)
     cd ${cur_dir}
     
     printnew -green "下载${PHP_NAME}源码包..."
@@ -193,8 +190,8 @@ else
         printnew -red "安装${PHP_NAME}失败, 程序终止."
         exit 1
     fi
-
     cd ..
+    
     mkdir -p ${PREFIX}/etc/php.d
     cp -rf ${PREFIX}/etc/php-fpm.conf.default ${PREFIX}/etc/php-fpm.conf
     cp -rf ${PREFIX}/etc/php-fpm.d/www.conf.default ${PREFIX}/etc/php-fpm.d/www.conf
