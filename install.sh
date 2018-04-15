@@ -271,7 +271,7 @@ else
     cd ${cur_dir}/.. && rm -rf ${cur_dir}
     cd ${PREFIX}/..
     ls | egrep -io 'php-([0-9]{1,2}.){2}[0-9]{1,2}' | egrep -iv ${PHP_NAME} | xargs rm -rf
-    cd -
+    cd - >/dev/null 2>&1
     rm -f ${MY_SCRIPT}
     printnew -green "${PHP_NAME} installed."
 fi
