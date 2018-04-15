@@ -243,10 +243,10 @@ else
             chmod 754 /usr/lib/systemd/system/php-fpm.service >/dev/null 2>&1
             systemctl enable php-fpm.service
             systemctl daemon-reload
-            if ! systemctl status php-fpm.service; then
-                systemctl start php-fpm.service
-            else
+            if systemctl status php-fpm.service; then
                 systemctl restart php-fpm.service
+            else
+                systemctl start php-fpm.service
             fi
         else
             printnew -red "安装服务失败."

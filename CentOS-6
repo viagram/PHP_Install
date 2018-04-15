@@ -52,6 +52,7 @@ case "$1" in
             exit 1
         else
             echo -e "\033[32m成功.\033[0m"
+            exit 0
         fi
     ;;
     stop)
@@ -67,19 +68,22 @@ case "$1" in
             exit 1
         else
             echo -e "\033[32m成功.\033[0m"
+            exit 0
         fi
     ;;
     status)
         echo -n "当前 PHP 状态: "
         if [[ ! -r ${PHP_FPM_PID} ]] ; then
             echo "已停止"
-            exit 0
+            exit 1
         fi
         PID=$(cat ${PHP_FPM_PID})
         if ps -p $PID | grep -q $PID; then
             echo -e "\033[32m运行中.(pid $PID)\033[0m"
+            exit 0
         else
             echo -e "\033[31m已停止, 但pid文件却存在.\033[0m"
+            exit 1
         fi
     ;;
     force-quit)
@@ -95,6 +99,7 @@ case "$1" in
             exit 1
         else
             echo -e "\033[32m成功.\033[0m"
+            exit 0
         fi
     ;;
     restart)
@@ -109,6 +114,7 @@ case "$1" in
         fi
         kill -USR2 $(cat ${PHP_FPM_PID})
         echo -e "\033[32m成功.\033[0m"
+        exit 0
     ;;
     configtest)
         ${PHP_FPM_BIN} -t
