@@ -9,10 +9,10 @@
 
 安装方法A:
 
-    git clone https://github.com/viagram/PHP_Install.git && cd PHP_Install && sh install.sh
+    git clone https://github.com/viagram/PHP_Install.git && cd PHP_Install && sh install.sh;cd ..
 
 安装方法B:
 
-    curl -sk https://codeload.github.com/viagram/PHP_Install/zip/master -o master.zip && unzip master.zip && rm -f master.zip && cd PHP_Install-master && sh install.sh
+    curl -sk https://codeload.github.com/viagram/PHP_Install/zip/master -o master.zip && unzip master.zip && rm -f master.zip && cd PHP_Install-master && sh install.sh;cd ..
 
 按提示操作, 基本按几下回车键即可.
