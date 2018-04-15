@@ -189,7 +189,7 @@ else
         printnew -red "安装${PHP_NAME}失败, 程序终止."
         exit 1
     fi
-    cd ..
+    cd -
     
     mkdir -p ${PREFIX}/etc/php.d
     cp -rf ${PREFIX}/etc/php-fpm.conf.default ${PREFIX}/etc/php-fpm.conf
@@ -233,10 +233,10 @@ else
         printnew -red "安装${APCU_FILE}失败, 程序终止."
         exit 1
     fi
-    cd ..
+    cd -
     
     # 安装php-fpm服务
-    printnew -green "下载/安装php服务..."
+    printnew -green "安装php-fpm服务..."
     if [[ "$(Check_OS)" == "centos7" || "$(Check_OS)" == "redhat7" ]]; then
         sed -i "s/PHP_VERSION/${PHP_NAME}/g" CentOS-7
         if cp -rf CentOS-7 /usr/lib/systemd/system/php-fpm.service; then
@@ -269,7 +269,9 @@ else
     fi
     
     cd ${cur_dir}/.. && rm -rf ${cur_dir}
+    cd ${PREFIX}/..
     ls | egrep -io 'php-([0-9]{1,2}.){2}[0-9]{1,2}' | egrep -iv ${PHP_NAME} | xargs rm -rf
+    cd -
     rm -f ${MY_SCRIPT}
     printnew -green "${PHP_NAME} installed."
 fi
