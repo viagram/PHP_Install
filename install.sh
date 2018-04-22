@@ -28,20 +28,20 @@ if [[ $EUID -ne 0 ]]; then
 fi
 
 function Check_OS(){
-    if [[ -f /etc/redhat-release ]];then
-        if egrep -i "centos.*6\..*" /etc/redhat-release >/dev/null 2>&1;then
+    if [[ -f /etc/redhat-release ]]; then
+        if egrep -i "centos.*6\..*" /etc/redhat-release >/dev/null 2>&1; then
             echo 'centos6'
-        elif egrep -i "centos.*7\..*" /etc/redhat-release >/dev/null 2>&1;then
+        elif egrep -i "centos.*7\..*" /etc/redhat-release >/dev/null 2>&1; then
             echo 'centos7'
-        elif egrep -i "Red.*Hat.*6\..*" /etc/redhat-release >/dev/null 2>&1;then
+        elif egrep -i "Red.*Hat.*6\..*" /etc/redhat-release >/dev/null 2>&1; then
             echo 'redhat6'
-        elif egrep -i "Red.*Hat.*7\..*" /etc/redhat-release >/dev/null 2>&1;then
+        elif egrep -i "Red.*Hat.*7\..*" /etc/redhat-release >/dev/null 2>&1; then
             echo 'redhat7'
         fi
-    elif [[ -f /etc/issue ]];then
-        if egrep -i "debian" /etc/issue >/dev/null 2>&1;then
+    elif [[ -f /etc/issue ]]; then
+        if egrep -i "debian" /etc/issue >/dev/null 2>&1; then
             echo 'debian'
-        elif egrep -i "ubuntu" /etc/issue >/dev/null 2>&1;then
+        elif egrep -i "ubuntu" /etc/issue >/dev/null 2>&1; then
             echo 'ubuntu'
         fi
     else
@@ -58,22 +58,22 @@ function printnew(){
         CHK="${PARSTR}"
         if echo "${CHK}" | egrep -io "^\-[[:graph:]]*" >/dev/null 2>&1; then
             case "${CHK}" in
-                -black) COLOUR="\033[30m";;
-                -red) COLOUR="\033[31m";;
-                -green) COLOUR="\033[32m";;
-                -yellow) COLOUR="\033[33m";;
-                -blue) COLOUR="\033[34m";;
-                -purple) COLOUR="\033[35m";;
-                -cyan) COLOUR="\033[36m";;
-                -white) COLOUR="\033[37m";;
-                -a) HUANHANG=1 ;;
-                *) COLOUR="\033[37m";;
+                -black) COLOUR="\033[30m";
+                -red) COLOUR="\033[41;37m";
+                -green) COLOUR="\033[32m";
+                -yellow) COLOUR="\033[33m";
+                -blue) COLOUR="\033[34m";
+                -purple) COLOUR="\033[35m";
+                -cyan) COLOUR="\033[36m";
+                -white) COLOUR="\033[37m";
+                -a) HUANHANG=1 ;
+                *) COLOUR="\033[37m";
             esac
         else
             WENZHI+="${PARSTR}"
         fi
     done
-    if [[ ${HUANHANG} -eq 1 ]];then
+    if [[ ${HUANHANG} -eq 1 ]]; then
         printf "${COLOUR}%b%s \033[0m" "${WENZHI}"
     else
         printf "${COLOUR}%b%s\033[0m\n" "${WENZHI}"
