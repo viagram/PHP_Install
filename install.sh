@@ -54,20 +54,20 @@ function printnew(){
     WENZHI=""
     COLOUR=""
     HUANHANG=0
-    for PARSTR in "${@}";do
+    for PARSTR in "${@}"; do
         CHK="${PARSTR}"
         if echo "${CHK}" | egrep -io "^\-[[:graph:]]*" >/dev/null 2>&1; then
             case "${CHK}" in
-                -black) COLOUR="\033[30m";
-                -red) COLOUR="\033[41;37m";
-                -green) COLOUR="\033[32m";
-                -yellow) COLOUR="\033[33m";
-                -blue) COLOUR="\033[34m";
-                -purple) COLOUR="\033[35m";
-                -cyan) COLOUR="\033[36m";
-                -white) COLOUR="\033[37m";
-                -a) HUANHANG=1 ;
-                *) COLOUR="\033[37m";
+                -black) COLOUR="\033[30m";;
+                -red) COLOUR="\033[41;37m";;
+                -green) COLOUR="\033[32m";;
+                -yellow) COLOUR="\033[33m";;
+                -blue) COLOUR="\033[34m";;
+                -purple) COLOUR="\033[35m";;
+                -cyan) COLOUR="\033[36m";;
+                -white) COLOUR="\033[37m";;
+                -a) HUANHANG=1 ;;
+                *) COLOUR="\033[37m";;
             esac
         else
             WENZHI+="${PARSTR}"
