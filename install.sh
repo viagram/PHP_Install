@@ -192,9 +192,9 @@ else
     cd -
     
     mkdir -p ${PREFIX}/etc/php.d
-    cp -rf ${PREFIX}/etc/php-fpm.conf.default ${PREFIX}/etc/php-fpm.conf
-    cp -rf ${PREFIX}/etc/php-fpm.d/www.conf.default ${PREFIX}/etc/php-fpm.d/www.conf
-    cp -rf php.ini ${PREFIX}/lib/php.ini
+    \cp -rf ${PREFIX}/etc/php-fpm.conf.default ${PREFIX}/etc/php-fpm.conf
+    \cp -rf ${PREFIX}/etc/php-fpm.d/www.conf.default ${PREFIX}/etc/php-fpm.d/www.conf
+    \cp -rf php.ini ${PREFIX}/lib/php.ini
 
     phpext_dir=$(${PREFIX}/bin/php-config --extension-dir)
     sed -i "s%This_php_extension_dir%${phpext_dir}%g" ${PREFIX}/lib/php.ini
@@ -206,7 +206,7 @@ else
         printnew -red "解压ioncube_loaders_lin_${ZEND_ARCH}失败, 程序终止."
         exit 1
     fi
-    if ! cp -rf ioncube/ioncube_loader_lin_${IONCUBE_VER}.so ${phpext_dir}/ioncube_loader_lin_${IONCUBE_VER}.so; then
+    if ! \cp -rf ioncube/ioncube_loader_lin_${IONCUBE_VER}.so ${phpext_dir}/ioncube_loader_lin_${IONCUBE_VER}.so; then
         printnew -red "安装ioncube_loader_lin_${IONCUBE_VER}失败, 程序终止."
         exit 1
     fi
@@ -239,7 +239,7 @@ else
     printnew -green "安装php-fpm服务..."
     if [[ "$(Check_OS)" == "centos7" || "$(Check_OS)" == "redhat7" ]]; then
         sed -i "s/PHP_VERSION/${PHP_NAME}/g" CentOS-7
-        if cp -rf CentOS-7 /usr/lib/systemd/system/php-fpm.service; then
+        if \cp -rf CentOS-7 /usr/lib/systemd/system/php-fpm.service; then
             chmod 754 /usr/lib/systemd/system/php-fpm.service >/dev/null 2>&1
             systemctl enable php-fpm.service
             systemctl daemon-reload
@@ -254,7 +254,7 @@ else
     fi
     if [[ "$(Check_OS)" == "centos6" || "$(Check_OS)" == "redhat6" ]]; then
         sed -i "s/PHP_VERSION/${PHP_NAME}/g" CentOS-6
-        if cp -rf CentOS-6 /etc/rc.d/init.d/php-fpm; then
+        if \cp -rf CentOS-6 /etc/rc.d/init.d/php-fpm; then
             chmod 754 /etc/rc.d/init.d/php-fpm >/dev/null 2>&1
             chkconfig --add php-fpm
             chkconfig php-fpm on
