@@ -90,7 +90,7 @@ else
     if [[ -n ${1} ]]; then
         PHP_NAME='php-'${1}
     else
-        PHP_NAME=$(curl -sk --retry 3 --speed-time 10 --speed-limit 1 --connect-timeout 10 https://secure.php.net/downloads.php | egrep -io '/get/php-([0-9]{1,2}.){3}tar.gz/from/a/mirror' | sort -Vu | awk 'END{print}' | egrep -io 'php-([0-9]{1,2}.){2}[0-9]{1,2}')
+        PHP_NAME=$(curl -sk --retry 3 --speed-time 10 --speed-limit 1 --connect-timeout 10 https://www.php.net/downloads.php | egrep -io '/distributions/php-([0-9]{1,2}.){3}tar.gz' | sort -Vu | awk 'END{print}' | egrep -io 'php-([0-9]{1,2}.){2}[0-9]{1,2}')
     fi
     if ! echo ${PHP_NAME} | egrep -io 'php-([0-9]{1,2}.){2}[0-9]{1,2}' >/dev/null 2>&1; then
         printnew -red "失败, 程序终止."
@@ -139,7 +139,7 @@ else
     
     printnew -green "下载${PHP_NAME}源码包..."
     [[ -f ${PHP_NAME}.tar.gz ]] && rm -f ${PHP_NAME}.tar.gz
-    if ! wget -O ${PHP_NAME}.tar.gz -c https://secure.php.net/distributions/${PHP_NAME}.tar.gz --no-check-certificate --tries=5 --timeout=10; then
+    if ! wget -O ${PHP_NAME}.tar.gz -c https://www.php.net/distributions/${PHP_NAME}.tar.gz --no-check-certificate --tries=5 --timeout=10; then
         printnew -red "下载失败, 程序终止."
         exit 1
     fi
