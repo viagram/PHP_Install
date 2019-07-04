@@ -79,6 +79,11 @@ function printnew(){
     fi
 }
 
+function version_gt() { test "$(echo "$@" | tr " " "\n" | sort -V | head -n 1)" != "$1";} #大于
+function version_ge() { test "$(echo "$@" | tr " " "\n" | sort -rV | head -n 1)" == "$1";} #大于或等于
+function version_lt() { test "$(echo "$@" | tr " " "\n" | sort -rV | head -n 1)" != "$1";} #小于
+function version_le() { test "$(echo "$@" | tr " " "\n" | sort -V | head -n 1)" == "$1";} #小于或等于
+
 ####################################################################################################################
 cur_dir=$(pwd)
     
@@ -130,9 +135,9 @@ else
     
     printnew -green "更新和安装必备组件包..."
     yum groupinstall -y "Development Tools"
-    if ! yum -y install bzip2-devel libxml2-devel curl-devel db4-devel libjpeg-devel libpng-devel \
+    if ! yum -y install gcc gcc-c++ kernel-devel kernel-ml-devel-$(uname -r) bzip2-devel libxml2-devel curl-devel db4-devel libjpeg-devel libpng-devel \
     freetype-devel pcre-devel zlib-devel sqlite-devel unzip bzip2 mhash-devel openssl-devel php-mcrypt \
-    libmcrypt libmcrypt-devel libtool-ltdl libtool-ltdl-devel wget gcc; then
+    libmcrypt libmcrypt-devel libtool-ltdl libtool-ltdl-devel wget; then
         printnew -red "更新和安装必备组件包失败, 程序终止."
         exit 1
     fi
@@ -154,13 +159,83 @@ else
         exit 1
     fi
     
+    CMAKE_VER=$(cmake --version | egrep -io '([0-9]{1,2}\.){2}[0-9]{1,2}')
+    if version_lt ${CMAKE_VER} '3.0.0'; then
+        printnew -green "下载CMake源码包..."
+        CMAKE_URL=$(curl -sk --retry 3 --speed-time 10 --speed-limit 1 --connect-timeout 10 'https://github.com/Kitware/CMake/releases/latest' | egrep -io '([0-9]{1,2}\.){2}[0-9]{1,2}' | awk '{print "https://github.com/Kitware/CMake/releases/download/v"$0"/cmake-"$0".tar.gz"}')
+        CMAKE_FILE=$(basename ${CMAKE_URL})
+        CMAKE_DIR=${CMAKE_FILE//'.tar.gz'/''}
+        #CMAKE_DIR=${CMAKE_FILE/.tar.gz/}
+        [[ -f ${CMAKE_FILE} ]] && rm -f ${CMAKE_FILE}
+        if ! wget -O ${CMAKE_FILE} -c ${CMAKE_URL} --tries=5 --timeout=10; then
+            printnew -red "下载失败, 程序终止."
+            exit 1
+        fi
+        printnew -a -green "解压${CMAKE_FILE}..."
+        if ! tar zxf ${CMAKE_FILE}; then
+            printnew -red "解压失败, 程序终止."
+            exit 1
+        else
+            printnew -green "解压成功"
+        fi
+        CMAKE_CMD=$(command -v cmake)
+        cd ${CMAKE_DIR}
+        ./bootstrap
+        printnew -green "开始编译${CMAKE_DIR}..."
+        if ! make; then
+            printnew -red "编译${CMAKE_DIR}失败, 程序终止."
+            exit 1
+        fi
+        make install
+        cd -
+        \cp -f ${MAKE_CMD} ${MAKE_CMD}.bak
+        ln -sf /usr/local/bin/cmake ${MAKE_CMD}
+
+        printnew -green "下载libzip源码包..."
+        LIBZIP_URL=$(curl -sk --retry 3 --speed-time 10 --speed-limit 1 --connect-timeout 10 https://libzip.org/download/ | egrep -io '/download/libzip-([0-9]{1,2}\.){3}tar.gz' | head -n 1 | awk '{print "https://libzip.org"$0}')
+        LIBZIP_FILE=$(basename ${LIBZIP_URL})
+        LIBZIP_DIR=${LIBZIP_FILE//'.tar.gz'/''}
+        #LIBZIP_DIR=${LIBZIP_FILE/.tar.gz/}
+        [[ -f ${LIBZIP_FILE} ]] && rm -f ${LIBZIP_FILE}
+        if ! wget -O ${LIBZIP_FILE} -c ${LIBZIP_URL} --tries=5 --timeout=10; then
+            printnew -red "下载失败, 程序终止."
+            exit 1
+        fi
+        printnew -a -green "解压${LIBZIP_FILE}..."
+        if ! tar zxf ${LIBZIP_FILE}; then
+            printnew -red "解压失败, 程序终止."
+            exit 1
+        else
+            printnew -green "解压成功"
+        fi
+        cd ${LIBZIP_DIR}
+        mkdir build
+        cd build
+        cmake ..
+        printnew -green "开始编译${LIBZIP_DIR}..."
+        if ! make; then
+            printnew -red "编译${LIBZIP_DIR}失败, 程序终止."
+            exit 1
+        fi
+        make install
+        cd ../..
+        
+#        cat >> /etc/ld.so.conf<<-EOF
+#/usr/local/lib64
+#/usr/local/lib
+#/usr/lib
+#/usr/lib64 
+#EOF
+        ldconfig -v
+    fi
+    
     # 编译并安装php
     printnew -a -green "解压${PHP_NAME}源码包..."
     if ! tar zxf ${PHP_NAME}.tar.gz; then
-        printnew -red "解压${PHP_NAME}失败, 程序终止."
+        printnew -red "解压失败, 程序终止."
         exit 1
     else
-        printnew -green "成功"
+        printnew -green "解压成功"
     fi
     cd ${PHP_NAME}
     printnew -green "开始编译${PHP_NAME}..."
