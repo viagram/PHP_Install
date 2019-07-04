@@ -97,10 +97,10 @@ else
         exit 1
     fi
     PREFIX="/usr/local/${PHP_NAME}"
-    PHP_VER=$(echo ${PHP_NAME} | sed 's/php-//g' | egrep -io '^[0-9]{1,2}.[0-9]{1,2}')
+    IONCUBE_VER=$(echo ${PHP_NAME} | sed 's/php-//g' | egrep -io '^[0-9]{1,2}.[0-9]{1,2}')
     CPUSU=$(cat /proc/cpuinfo | grep processor | wc -l)
 
-    if [[ -z ${PHP_VER} ]]; then
+    if [[ -z ${IONCUBE_VER} ]]; then
         printnew -red "失败, 程序终止."
         exit 1
     else
@@ -140,6 +140,13 @@ else
     printnew -green "下载${PHP_NAME}源码包..."
     [[ -f ${PHP_NAME}.tar.gz ]] && rm -f ${PHP_NAME}.tar.gz
     if ! wget -O ${PHP_NAME}.tar.gz -c https://www.php.net/distributions/${PHP_NAME}.tar.gz --no-check-certificate --tries=5 --timeout=10; then
+        printnew -red "下载失败, 程序终止."
+        exit 1
+    fi
+    
+    printnew -green "下载ioncube扩展包..."
+    [[ -f ioncube_loaders_lin_${ZEND_ARCH}.tar.gz ]] && rm -f ioncube_loaders_lin_${ZEND_ARCH}.tar.gz
+    if ! wget -O ioncube_loaders_lin_${ZEND_ARCH}.tar.gz -c https://downloads.ioncube.com/loader_downloads/ioncube_loaders_lin_${ZEND_ARCH}.tar.gz --tries=5 --timeout=10; then
         printnew -red "下载失败, 程序终止."
         exit 1
     fi
@@ -191,6 +198,20 @@ else
     phpext_dir=$(${PREFIX}/bin/php-config --extension-dir)
     sed -i "s%This_php_extension_dir%${phpext_dir}%g" ${PREFIX}/lib/php.ini
 
+    
+    # 复制ioncube扩展
+    printnew -green "安装 ioncube 扩展..."
+    if ! tar zxf ioncube_loaders_lin_${ZEND_ARCH}.tar.gz; then
+        printnew -red "解压ioncube_loaders_lin_${ZEND_ARCH}失败, 程序终止."
+        exit 1
+    fi
+    if ! \cp -rf ioncube/ioncube_loader_lin_${IONCUBE_VER}.so ${phpext_dir}/ioncube_loader_lin_${IONCUBE_VER}.so; then
+        printnew -red "安装ioncube_loader_lin_${IONCUBE_VER}失败, 程序终止."
+        exit 1
+    fi
+    chmod +x ${phpext_dir}/ioncube_loader_lin_${IONCUBE_VER}.so
+    sed -i "s%ioncube_loader_lin_ver.so%ioncube_loader_lin_${IONCUBE_VER}.so%g" ${PREFIX}/lib/php.ini
+    
     # 编译并安装apcu扩展
     printnew -green "安装 apcu 扩展..."
     if ! tar zxf ${APCU_FILE}; then
