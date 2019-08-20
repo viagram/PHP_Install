@@ -197,6 +197,7 @@ else
 		cd -
 		\cp -f ${MAKE_CMD} ${MAKE_CMD}.bak
 		ln -sf /usr/local/bin/cmake ${MAKE_CMD}
+		source /etc/profile
 
 		printnew -green "下载libzip源码包..."
 		LIBZIP_URL=$(curl -sk --retry 3 --speed-time 10 --speed-limit 1 --connect-timeout 10 https://libzip.org/download/ | egrep -io '/download/libzip-([0-9]{1,2}\.){3}tar.gz' | head -n 1 | awk '{print "https://libzip.org"$0}')
