@@ -185,7 +185,7 @@ else
 			printnew -green "解压成功"
 		fi
 		CMAKE_CMD=$(command -v cmake)
-		[[ -z ${MAKE_CMD} ]] && CMAKE_CMD=/usr/bin/cmake
+		[[ -z ${MAKE_CMD} ]] && CMAKE_CMD=/usr/bin/cmake || yum remove -y cmake
 		cd ${CMAKE_DIR}
 		./bootstrap
 		printnew -green "开始编译${CMAKE_DIR}..."
