@@ -166,7 +166,7 @@ else
 	fi
 	
 	CMAKE_VER=$(cmake --version | egrep -io '([0-9]{1,2}\.){2}[0-9]{1,2}')
-	if version_lt ${CMAKE_VER} '3.0.0'; then
+	if version_lt ${CMAKE_VER} '3.15.0'; then
 		printnew -green "下载CMake源码包..."
 		CMAKE_URL=$(curl -sk --retry 3 --speed-time 10 --speed-limit 1 --connect-timeout 10 'https://github.com/Kitware/CMake/releases/latest' | egrep -io '([0-9]{1,2}\.){2}[0-9]{1,2}' | awk '{print "https://github.com/Kitware/CMake/releases/download/v"$0"/cmake-"$0".tar.gz"}')
 		CMAKE_FILE=$(basename ${CMAKE_URL})
