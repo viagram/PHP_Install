@@ -177,7 +177,7 @@ else
 			printnew -red "下载失败, 程序终止."
 			exit 1
 		fi
-		printnew -a -green "解压${CMAKE_FILE}..."
+		printnew -a -green "解压${CMAKE_FILE}: "
 		if ! tar zxf ${CMAKE_FILE}; then
 			printnew -red "解压失败, 程序终止."
 			exit 1
@@ -185,7 +185,7 @@ else
 			printnew -green "解压成功"
 		fi
 		CMAKE_CMD=$(command -v cmake)
-		[[ -z ${MAKE_CMD} ]] && CMAKE_CMD=/usr/bin/cmake || yum remove -y cmake
+		[[ -z ${CMAKE_CMD} ]] && CMAKE_CMD=/usr/bin/cmake || yum remove -y cmake
 		cd ${CMAKE_DIR}
 		./bootstrap
 		printnew -green "开始编译${CMAKE_DIR}..."
