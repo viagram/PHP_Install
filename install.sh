@@ -147,7 +147,7 @@ else
 		printnew -red "更新和安装必备组件包失败, 程序终止."
 		exit 1
 	fi
-	
+	cd ${cur_dir}
 	printnew -green "下载${PHP_NAME}源码包..."
 	[[ -f ${PHP_NAME}.tar.gz ]] && rm -f ${PHP_NAME}.tar.gz
 	if ! wget -O ${PHP_NAME}.tar.gz -c https://www.php.net/distributions/${PHP_NAME}.tar.gz --no-check-certificate --tries=5 --timeout=10; then
@@ -187,7 +187,7 @@ else
 		CMAKE_CMD=$(command -v cmake)
 		[[ -z ${CMAKE_CMD} ]] && CMAKE_CMD=/usr/bin/cmake || yum remove -y cmake
 		cd ${CMAKE_DIR}
-		./bootstrap
+		./bootstrap --prefix=/usr
 		printnew -green "开始编译${CMAKE_DIR}..."
 		if ! make; then
 			printnew -red "编译${CMAKE_DIR}失败, 程序终止."
@@ -195,8 +195,6 @@ else
 		fi
 		make install
 		cd -
-		\cp -f ${MAKE_CMD} ${MAKE_CMD}.bak
-		ln -sf /usr/local/bin/cmake ${MAKE_CMD}
 		source /etc/profile
 
 		printnew -green "下载libzip源码包..."
