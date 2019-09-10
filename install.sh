@@ -150,7 +150,7 @@ else
 	cd ${cur_dir}
 	printnew -green "下载${PHP_NAME}源码包..."
 	[[ -f ${PHP_NAME}.tar.gz ]] && rm -f ${PHP_NAME}.tar.gz
-	if ! wget -O ${PHP_NAME}.tar.gz -c https://www.php.net/distributions/${PHP_NAME}.tar.gz --no-check-certificate --tries=5 --timeout=10; then
+	if ! wget -O ${PHP_NAME}.tar.gz -c https://www.php.net/distributions/${PHP_NAME}.tar.gz --no-check-certificate; then
 		printnew -red "下载失败, 程序终止."
 		exit 1
 	fi
@@ -160,7 +160,7 @@ else
 	APCU_FILE=$(basename ${APCU_URL})
 	APCU_DIR=${APCU_FILE%.*}
 	[[ -f ${APCU_FILE} ]] && rm -f ${APCU_FILE}
-	if ! wget -O ${APCU_FILE} -c ${APCU_URL} --tries=5 --timeout=10; then
+	if ! wget -O ${APCU_FILE} -c ${APCU_URL}; then
 		printnew -red "下载失败, 程序终止."
 		exit 1
 	fi
@@ -173,7 +173,7 @@ else
 		CMAKE_DIR=${CMAKE_FILE//'.tar.gz'/''}
 		#CMAKE_DIR=${CMAKE_FILE/.tar.gz/}
 		[[ -f ${CMAKE_FILE} ]] && rm -f ${CMAKE_FILE}
-		if ! wget -O ${CMAKE_FILE} -c ${CMAKE_URL} --tries=5 --timeout=10; then
+		if ! wget -O ${CMAKE_FILE} -c ${CMAKE_URL}; then
 			printnew -red "下载失败, 程序终止."
 			exit 1
 		fi
@@ -187,6 +187,7 @@ else
 		CMAKE_CMD=$(command -v cmake)
 		[[ -z ${CMAKE_CMD} ]] && CMAKE_CMD=/usr/bin/cmake || yum remove -y cmake
 		cd ${CMAKE_DIR}
+		printnew -green "开始配置${CMAKE_DIR}..."
 		./bootstrap --prefix=/usr
 		printnew -green "开始编译${CMAKE_DIR}..."
 		if ! make; then
@@ -203,7 +204,7 @@ else
 		LIBZIP_DIR=${LIBZIP_FILE//'.tar.gz'/''}
 		#LIBZIP_DIR=${LIBZIP_FILE/.tar.gz/}
 		[[ -f ${LIBZIP_FILE} ]] && rm -f ${LIBZIP_FILE}
-		if ! wget -O ${LIBZIP_FILE} -c ${LIBZIP_URL} --tries=5 --timeout=10; then
+		if ! wget -O ${LIBZIP_FILE} -c ${LIBZIP_URL}; then
 			printnew -red "下载失败, 程序终止."
 			exit 1
 		fi
