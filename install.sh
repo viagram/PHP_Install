@@ -302,7 +302,7 @@ else
 			chmod 754 /usr/lib/systemd/system/php-fpm.service >/dev/null 2>&1
 			systemctl enable php-fpm.service
 			systemctl daemon-reload
-			if systemctl status php-fpm.service; then
+			if systemctl status php-fpm.service >/dev/null 2>&1; then
 				systemctl restart php-fpm.service
 			else
 				systemctl start php-fpm.service
