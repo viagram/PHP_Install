@@ -234,7 +234,39 @@ else
 #EOF
 		ldconfig -v
 	fi
-	
+
+	printnew -green "下载freetype源码包..."
+	freetype_url=$(curl -skL https://download.savannah.gnu.org/releases/freetype/ | egrep -io 'freetype-[0-9]{1,2}.[0-9]{1,2}.([0-9]{1,2}|[0-9]{1,2}.[0-9]{1,2}).tar.gz' | sort -ruV | head -n1 | awk  '{print "https://download.savannah.gnu.org/releases/freetype/"$0}')
+	freetype_file=$(basename ${freetype_url})
+	freetype_dir=$(echo ${freetype_file} | sed 's/.tar.gz//g')
+	if ! wget -c ${freetype_url} -O ${freetype_file}; then
+		printnew -red "下载失败, 程序终止."
+		exit 1
+	fi
+	tar --overwrite -zxf ${freetype_file}
+	rm -f ${freetype_file}
+	cd ${freetype_dir}
+	./configure --prefix=/usr/local/freetype #同上,指定安装目录
+	make && make install
+	cd -
+	rm -rf ${freetype_dir}
+
+	printnew -green "下载libjpeg源码包..."
+	libjpeg_url=$(curl -skL https://www.ijg.org/files/ | egrep -io 'jpegsrc.v([0-9]{1,2}|[0-9]{1,2}.[0-9]{1,2})[a-z]{1,2}.tar.gz' | sort -ruV | head -n1 | awk  '{print "https://www.ijg.org/files/"$0}')
+	libjpeg_file=$(basename ${libjpeg_url})
+	libjpeg_version=$(echo ${libjpeg_file} | egrep -io '([0-9]{1,2}|[0-9]{1,2}.[0-9]{1,2})[a-z]{1,2}')
+	if ! wget -c ${libjpeg_url} -O ${libjpeg_file}; then
+		printnew -red "下载失败, 程序终止."
+		exit 1
+	fi
+	tar --overwrite -zxf ${libjpeg_file}
+	rm -f ${libjpeg_file}
+	cd jpeg-${libjpeg_version}
+	./configure --prefix=/usr/local/libjpeg --enable-shared #libjpeg默认不会以共享方式安装,所以需要打开
+	make && make install
+	cd -
+	rm -rf jpeg-${libjpeg_version}
+
 	# 编译并安装php
 	printnew -a -green "解压${PHP_NAME}源码包..."
 	if ! tar zxf ${PHP_NAME}.tar.gz; then
@@ -267,10 +299,19 @@ else
 	mkdir -p ${PREFIX}/etc/php.d
 	\cp -rf ${PREFIX}/etc/php-fpm.conf.default ${PREFIX}/etc/php-fpm.conf
 	\cp -rf ${PREFIX}/etc/php-fpm.d/www.conf.default ${PREFIX}/etc/php-fpm.d/www.conf
+	[[ ! -f php.ini ]] && wget -c https://raw.githubusercontent.com/viagram/PHP_Install/master/php.ini -O php.ini
 	\cp -rf php.ini ${PREFIX}/lib/php.ini
 
 	phpext_dir=$(${PREFIX}/bin/php-config --extension-dir)
 	sed -i "s%This_php_extension_dir%${phpext_dir}%g" ${PREFIX}/lib/php.ini
+
+	# 编译并安装gd展
+	printnew -green "安装 gd 扩展..."
+	cd ${PHP_NAME}/ext/gd/
+	${PREFIX}/bin/phpize
+	./configure --with-php-config=${PREFIX}/bin/php-config --with-jpeg=/usr/local/libjpeg --with-freetype=/usr/local/freetype
+	make && make install
+	cd -
 
 	# 编译并安装apcu扩展
 	printnew -green "安装 apcu 扩展..."
@@ -297,6 +338,7 @@ else
 	# 安装php-fpm服务
 	printnew -green "安装php-fpm服务..."
 	if [[ "$(Check_OS)" == "centos7" ]]; then
+		[[ ! -f CentOS-7 ]] && wget -c https://raw.githubusercontent.com/viagram/PHP_Install/master/CentOS-7 -O CentOS-7
 		sed -i "s/PHP_VERSION/${PHP_NAME}/g" CentOS-7
 		if \cp -rf CentOS-7 /usr/lib/systemd/system/php-fpm.service; then
 			chmod 754 /usr/lib/systemd/system/php-fpm.service >/dev/null 2>&1
@@ -312,6 +354,7 @@ else
 		fi
 	fi
 	if [[ "$(Check_OS)" == "centos6" ]]; then
+		[[ ! -f CentOS-6 ]] && wget -c https://raw.githubusercontent.com/viagram/PHP_Install/master/CentOS-6 -O CentOS-6
 		sed -i "s/PHP_VERSION/${PHP_NAME}/g" CentOS-6
 		if \cp -rf CentOS-6 /etc/rc.d/init.d/php-fpm; then
 			chmod 754 /etc/rc.d/init.d/php-fpm >/dev/null 2>&1
