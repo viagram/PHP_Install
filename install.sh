@@ -377,5 +377,6 @@ else
 	rm -f ${my_path}
 	printnew -green "${PHP_NAME} installed."
 	sed -i '/php=/d' /etc/bashrc
-	echo "alias php='/usr/local/${PHP_NAME}'">>/etc/bashrc
+	echo "alias php='/usr/local/${PHP_NAME}/bin/php'">>/etc/bashrc
+	source /etc/bashrc
 fi
