@@ -374,9 +374,13 @@ else
 	cd ${PREFIX}/..
 	ls | egrep -io 'php-([0-9]{1,2}.){2}[0-9]{1,2}' | egrep -iv ${PHP_NAME} | xargs rm -rf
 	cd - >/dev/null 2>&1
+	sed -i '/php-/d' /etc/profile
+	echo -e "PATH=\${PATH}:/usr/local/${PHP_NAME}/bin\nexport PATH">>/etc/profile
+	source /etc/profile
+	#curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local/${PHP_NAME}/bin
+	#composer.phar require gemorroj/archive7z
+	#pear install Archive_Tar
 	rm -f ${my_path}
-	printnew -green "${PHP_NAME} installed."
-	sed -i '/php=/d' /etc/bashrc
-	echo "alias php='/usr/local/${PHP_NAME}/bin/php'">>/etc/bashrc
-	source /etc/bashrc
+	printnew -green "${PHP_NAME} 安装完成"
+
 fi
