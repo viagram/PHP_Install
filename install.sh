@@ -141,12 +141,13 @@ else
 	
 	printnew -green "更新和安装必备组件包..."
 	yum groupinstall -y "Development Tools"
-	if ! yum -y install gcc gcc-c++ p7zipkernel-devel kernel-ml-devel-$(uname -r) oniguruma oniguruma-devel bzip2-devel libxml2-devel curl-devel db4-devel \
+	if ! yum -y install gcc gcc-c++ p7zipkernel-devel kernel-ml-devel-$(uname -r) oniguruma oniguruma-devel bzip2-devel libxml2-devel db4-devel \
 	libjpeg-devel libpng-devel p7zip freetype-devel pcre-devel zlib-devel sqlite-devel unzip bzip2 mhash-devel openssl-devel php-mcrypt \
 	libmcrypt libmcrypt-devel libtool-ltdl libtool-ltdl-devel wget cmake; then
 		printnew -red "更新和安装必备组件包失败, 程序终止."
 		exit 1
 	fi
+	yum remove -y curl-devel >/dev/null 2>&1
 	ln -sf $(which 7z) /usr/bin/7zr
 	cd ${cur_dir}
 	printnew -green "下载${PHP_NAME}源码包..."
