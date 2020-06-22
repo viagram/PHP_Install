@@ -32,6 +32,7 @@ function Check_OS(){
 	if echo ${Text} | egrep -io "(centos[a-z ]*5|red[a-z ]*hat[a-z ]*5)" >/dev/null 2>&1; then echo centos5
 	elif echo ${Text} | egrep -io "(centos[a-z ]*6|red[a-z ]*hat[a-z ]*6)" >/dev/null 2>&1; then echo centos6
 	elif echo ${Text} | egrep -io "(centos[a-z ]*7|red[a-z ]*hat[a-z ]*7)" >/dev/null 2>&1; then echo centos7
+	elif echo ${Text} | egrep -io "(centos[a-z ]*8|red[a-z ]*hat[a-z ]*8)" >/dev/null 2>&1; then echo centos8
 	elif echo ${Text} | egrep -io "Fedora[a-z ]*[0-9]{1,2}" >/dev/null 2>&1; then echo fedora
 	elif echo ${Text} | egrep -io "debian[a-z /]*[0-9]{1,2}" >/dev/null 2>&1; then echo debian
 	elif echo ${Text} | egrep -io "ubuntu" >/dev/null 2>&1; then echo ubuntu
@@ -93,8 +94,8 @@ function version_le() { test "$(echo "$@" | tr " " "\n" | sort -V | head -n 1)" 
 ####################################################################################################################
 cur_dir=${my_dir}
 	
-if [[ "$(Check_OS)" != "centos7" && "$(Check_OS)" != "centos6" ]]; then
-	printnew -red "目前仅支持CentOS6,7及Redhat6,7系统."
+if [[ "$(Check_OS)" != "centos8" && "$(Check_OS)" != "centos7" && "$(Check_OS)" != "centos6" ]]; then
+	printnew -red "目前仅支持CentOS6,7及Redhat6,7,8系统."
 	exit 1
 else
 	printnew -a -green "获取版本信息..."
@@ -141,11 +142,14 @@ else
 	
 	printnew -green "更新和安装必备组件包..."
 	yum groupinstall -y "Development Tools"
-	if ! yum -y install gcc gcc-c++ kernel-devel kernel-ml-devel-$(uname -r) oniguruma oniguruma-devel bzip2-devel libxml2-devel curl-devel db4-devel libjpeg-devel libpng-devel \
-	p7zip-plugins freetype-devel pcre-devel zlib-devel sqlite-devel unzip bzip2 mhash-devel openssl-devel php-mcrypt \
-	libmcrypt libmcrypt-devel libtool-ltdl libtool-ltdl-devel wget cmake; then
-		printnew -red "更新和安装必备组件包失败, 程序终止."
-		exit 1
+	if [[ "$(Check_OS)" == "centos8" ]]; then
+		dnf -y install gcc gcc-c++ kernel-devel oniguruma bzip2-devel libxml2-devel curl-devel  libjpeg-devel libpng-devel \
+			p7zip-plugins freetype-devel pcre-devel zlib-devel sqlite-devel unzip bzip2 mhash-devel openssl-devel  \
+			libmcrypt libmcrypt-devel libtool-ltdl libtool-ltdl-devel wget cmake
+	else
+		yum -y install gcc gcc-c++ kernel-devel kernel-ml-devel-$(uname -r) oniguruma oniguruma-devel bzip2-devel libxml2-devel curl-devel db4-devel libjpeg-devel libpng-devel \
+			p7zip-plugins freetype-devel pcre-devel zlib-devel sqlite-devel unzip bzip2 mhash-devel openssl-devel php-mcrypt \
+		libmcrypt libmcrypt-devel libtool-ltdl libtool-ltdl-devel wget cmake
 	fi
 	ln -sf $(which 7z) /usr/bin/7zr
 	cd ${cur_dir}
