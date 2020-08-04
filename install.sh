@@ -345,7 +345,7 @@ else
 	fpm_fixc=$(cat ${PREFIX}/etc/php-fpm.conf | egrep -io '(^;process_control_timeout[[:print:]]*|^process_control_timeout[[:print:]]*)')
 	fpm_fixd=$(cat ${PREFIX}/etc/php-fpm.d/www.conf | egrep -io '(^;pm.max_requests[[:print:]]*|^pm.max_requests[[:print:]]*)')
 	sed -i "s/${fpm_fixa}/emergency_restart_threshold = 4/g" ${PREFIX}/etc/php-fpm.conf
-	sed -i "s/${fpm_fixb}/emergency_restart_interval = 1m/g" ${PREFIX}/etc/php-fpm.conf
+	sed -i "s/${fpm_fixb}/emergency_restart_interval = 30s/g" ${PREFIX}/etc/php-fpm.conf
 	sed -i "s/${fpm_fixc}/process_control_timeout = 10s/g" ${PREFIX}/etc/php-fpm.conf
 	sed -i "s/${fpm_fixd}/pm.max_requests = 100/g" ${PREFIX}/etc/php-fpm.d/www.conf
 	# 安装php-fpm服务
