@@ -102,7 +102,7 @@ else
 	if [[ -n ${1} ]]; then
 		PHP_NAME='php-'${1}
 	else
-		PHP_NAME=$(curl -sk --retry 3 --speed-time 10 --speed-limit 1 --connect-timeout 10 https://www.php.net/downloads.php | egrep -io '/distributions/php-([0-9]{1,2}.){3}tar.gz' | sort -Vu | awk 'END{print}' | egrep -io 'php-([0-9]{1,2}.){2}[0-9]{1,2}')
+		PHP_NAME=$(curl -skL --retry 3 --connect-timeout 5 https://www.php.net/downloads.php | egrep -io '/distributions/php-([0-9]{1,2}.){3}tar.gz' | sort -Vu | awk 'END{print}' | egrep -io 'php-([0-9]{1,2}.){2}[0-9]{1,2}')
 	fi
 	if ! echo ${PHP_NAME} | egrep -io 'php-([0-9]{1,2}.){2}[0-9]{1,2}' >/dev/null 2>&1; then
 		printnew -red "失败, 程序终止."
@@ -161,7 +161,12 @@ else
 	fi
 	
 	printnew -green "下载apcu扩展包..."
-	APCU_URL=$(curl -sk --retry 3 --speed-time 10 --speed-limit 1 --connect-timeout 10 https://pecl.php.net/package/APCu | egrep -io '/get/apcu-([0-9]{1,2}.){3}tgz' | head -n 1 | awk '{print "https://pecl.php.net"$0}')
+	APCU_URL=$(curl -skL --retry 3 --connect-timeout 5 https://pecl.php.net/package/APCu | egrep -io '/get/apcu-([0-9]{1,2}.){3}tgz' | head -n 1 | awk '{print "https://pecl.php.net"$0}')
+	[[ -z ${APCU_URL} ]] && APCU_URL=$(curl -skL --retry 3 --connect-timeout 5 https://pecl.php.net/package/APCu | egrep -io '/get/apcu-([0-9]{1,2}.){3}tgz' | head -n 1 | awk '{print "https://pecl.php.net"$0}')
+	[[ -z ${APCU_URL} ]] && {
+		printnew -red "获取apcu信息失败, 程序终止."
+		exit 1
+	}
 	APCU_FILE=$(basename ${APCU_URL})
 	APCU_DIR=${APCU_FILE%.*}
 	[[ -f ${APCU_FILE} ]] && rm -f ${APCU_FILE}
@@ -173,7 +178,7 @@ else
 	CMAKE_VER=$(cmake --version | egrep -io '([0-9]{1,2}\.){2}[0-9]{1,2}')
 	if version_lt ${CMAKE_VER} '3.15.0'; then
 		printnew -green "下载CMake源码包..."
-		CMAKE_URL=$(curl -sk --retry 3 --speed-time 10 --speed-limit 1 --connect-timeout 10 'https://github.com/Kitware/CMake/releases/latest' | egrep -io '([0-9]{1,2}\.){2}[0-9]{1,2}' | awk '{print "https://github.com/Kitware/CMake/releases/download/v"$0"/cmake-"$0".tar.gz"}')
+		CMAKE_URL=$(curl -skL --retry 3 --connect-timeout 5 'https://github.com/Kitware/CMake/releases/latest' | egrep -io '([0-9]{1,2}\.){2}[0-9]{1,2}' | awk '{print "https://github.com/Kitware/CMake/releases/download/v"$0"/cmake-"$0".tar.gz"}')
 		CMAKE_FILE=$(basename ${CMAKE_URL})
 		CMAKE_DIR=${CMAKE_FILE//'.tar.gz'/''}
 		#CMAKE_DIR=${CMAKE_FILE/.tar.gz/}
@@ -204,7 +209,7 @@ else
 		source /etc/profile
 
 		printnew -green "下载libzip源码包..."
-		LIBZIP_URL=$(curl -sk --retry 3 --speed-time 10 --speed-limit 1 --connect-timeout 10 https://libzip.org/download/ | egrep -io '/download/libzip-([0-9]{1,2}\.){3}tar.gz' | head -n 1 | awk '{print "https://libzip.org"$0}')
+		LIBZIP_URL=$(curl -skL --retry 3 --connect-timeout 5 https://libzip.org/download/ | egrep -io '/download/libzip-([0-9]{1,2}\.){3}tar.gz' | head -n 1 | awk '{print "https://libzip.org"$0}')
 		LIBZIP_FILE=$(basename ${LIBZIP_URL})
 		LIBZIP_DIR=${LIBZIP_FILE//'.tar.gz'/''}
 		#LIBZIP_DIR=${LIBZIP_FILE/.tar.gz/}
@@ -257,7 +262,7 @@ else
 	rm -rf ${freetype_dir}
 
 	printnew -green "下载libjpeg源码包..."
-	libjpeg_url=$(curl -skL https://www.ijg.org/files/ | egrep -io 'jpegsrc.v([0-9]{1,2}|[0-9]{1,2}.[0-9]{1,2})[a-z]{1,2}.tar.gz' | sort -ruV | head -n1 | awk  '{print "https://www.ijg.org/files/"$0}')
+	libjpeg_url=$(curl -skL --retry 3 --connect-timeout 5 https://www.ijg.org/files/ | egrep -io 'jpegsrc.v([0-9]{1,2}|[0-9]{1,2}.[0-9]{1,2})[a-z]{1,2}.tar.gz' | sort -ruV | head -n1 | awk  '{print "https://www.ijg.org/files/"$0}')
 	libjpeg_file=$(basename ${libjpeg_url})
 	libjpeg_version=$(echo ${libjpeg_file} | egrep -io '([0-9]{1,2}|[0-9]{1,2}.[0-9]{1,2})[a-z]{1,2}')
 	if ! wget -c ${libjpeg_url} -O ${libjpeg_file}; then
