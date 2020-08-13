@@ -178,7 +178,7 @@ else
 	CMAKE_VER=$(cmake --version | egrep -io '([0-9]{1,2}\.){2}[0-9]{1,2}')
 	if version_lt ${CMAKE_VER} '3.15.0'; then
 		printnew -green "下载CMake源码包..."
-		CMAKE_URL=$(curl -skL --retry 3 --connect-timeout 5 'https://github.com/Kitware/CMake/releases/latest' | egrep -io '([0-9]{1,2}\.){2}[0-9]{1,2}' | awk '{print "https://github.com/Kitware/CMake/releases/download/v"$0"/cmake-"$0".tar.gz"}')
+		CMAKE_URL=$(curl -sk --retry 3 --connect-timeout 5 'https://github.com/Kitware/CMake/releases/latest' | egrep -io '([0-9]{1,2}\.){2}[0-9]{1,2}' | awk '{print "https://github.com/Kitware/CMake/releases/download/v"$0"/cmake-"$0".tar.gz"}')
 		CMAKE_FILE=$(basename ${CMAKE_URL})
 		CMAKE_DIR=${CMAKE_FILE//'.tar.gz'/''}
 		#CMAKE_DIR=${CMAKE_FILE/.tar.gz/}
@@ -246,7 +246,7 @@ else
 	fi
 
 	printnew -green "下载freetype源码包..."
-	freetype_url=$(curl -skL https://download.savannah.gnu.org/releases/freetype/ | egrep -io 'freetype-[0-9]{1,2}.[0-9]{1,2}.([0-9]{1,2}|[0-9]{1,2}.[0-9]{1,2}).tar.gz' | sort -ruV | head -n1 | awk  '{print "https://download.savannah.gnu.org/releases/freetype/"$0}')
+	freetype_url=$(curl -sk https://download.savannah.gnu.org/releases/freetype/ | egrep -io 'freetype-[0-9]{1,2}.[0-9]{1,2}.([0-9]{1,2}|[0-9]{1,2}.[0-9]{1,2}).tar.gz' | sort -ruV | head -n1 | awk  '{print "https://download.savannah.gnu.org/releases/freetype/"$0}')
 	freetype_file=$(basename ${freetype_url})
 	freetype_dir=$(echo ${freetype_file} | sed 's/.tar.gz//g')
 	if ! wget -c ${freetype_url} -O ${freetype_file}; then
