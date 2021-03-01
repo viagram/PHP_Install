@@ -271,7 +271,7 @@ else
     cd icu/source
     mkdir /usr/local/icu
     ./configure --prefix=/usr/local/icu
-    make && make install
+    make && make install && export PKG_CONFIG_PATH="/usr/local/icu/lib/pkgconfig"
     cd -
     rm -rf icu
 
