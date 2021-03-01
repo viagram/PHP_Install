@@ -261,6 +261,20 @@ else
 	cd -
 	rm -rf ${freetype_dir}
 
+	printnew -green "下载icu4c-52_2源码包..."
+    if ! wget -c https://github.com/unicode-org/icu/releases/download/release-52-2/icu4c-52_2-src.tgz -O icu4c-52_2-src.tgz; then
+		printnew -red "下载失败, 程序终止."
+		exit 1
+	fi
+    tar zxvf icu4c-52_2-src.tgz
+    rm -f icu4c-52_2-src.tgz
+    cd icu/source
+    mkdir /usr/local/icu
+    ./configure --prefix=/usr/local/icu
+    make && make install
+    cd -
+    rm -rf icu
+
 	printnew -green "下载libjpeg源码包..."
 	libjpeg_url=$(curl -skL --retry 3 --connect-timeout 5 https://www.ijg.org/files/ | egrep -io 'jpegsrc.v([0-9]{1,2}|[0-9]{1,2}.[0-9]{1,2})[a-z]{1,2}.tar.gz' | sort -ruV | head -n1 | awk  '{print "https://www.ijg.org/files/"$0}')
 	libjpeg_file=$(basename ${libjpeg_url})
@@ -287,7 +301,7 @@ else
 	fi
 	cd ${PHP_NAME}
 	printnew -green "开始编译${PHP_NAME}..."
-	CONFIG_CMD="./configure --prefix=${PREFIX} --with-config-file-scan-dir=${PREFIX}/etc/php.d --with-libdir=${LIB} --enable-fastcgi --enable-fpm --with-mysql --with-mysqli --with-pdo-mysql --with-iconv-dir --with-freetype-dir --with-jpeg-dir --with-png-dir --with-zlib --with-libxml-dir=/usr/include/libxml2/libxml --enable-xml --disable-fileinfo --enable-magic-quotes --enable-safe-mode --enable-bcmath --enable-shmop --enable-sysvsem --enable-inline-optimization --with-curl --with-curlwrappers --enable-mbregex --enable-mbstring --enable-ftp --with-gd --enable-gd-native-ttf --with-openssl --enable-pcntl --enable-sockets --with-xmlrpc --enable-zip --enable-soap --with-pear --with-gettext --enable-calendar --with-openssl --enable-intl"
+	CONFIG_CMD="./configure --prefix=${PREFIX} --with-config-file-scan-dir=${PREFIX}/etc/php.d --with-libdir=${LIB} --enable-fastcgi --enable-fpm --with-mysql --with-mysqli --with-pdo-mysql --with-iconv-dir --with-freetype-dir --with-jpeg-dir --with-png-dir --with-zlib --with-libxml-dir=/usr/include/libxml2/libxml --enable-xml --disable-fileinfo --enable-magic-quotes --enable-safe-mode --enable-bcmath --enable-shmop --enable-sysvsem --enable-inline-optimization --with-curl --with-curlwrappers --enable-mbregex --enable-mbstring --enable-ftp --with-gd --enable-gd-native-ttf --with-openssl --enable-pcntl --enable-sockets --with-xmlrpc --enable-zip --enable-soap --with-pear --with-gettext --enable-calendar --with-openssl --with-icu-dir=/usr/local/icu"
 	if [ -f /usr/include/mcrypt.h ]; then
 		CONFIG_CMD+=" --with-mcrypt"
 	fi
