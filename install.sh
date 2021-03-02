@@ -261,19 +261,21 @@ else
 	cd -
 	rm -rf ${freetype_dir}
 
-	printnew -green "下载icu4c-52_2源码包..."
-    if ! wget -c https://github.com/unicode-org/icu/releases/download/release-52-2/icu4c-52_2-src.tgz -O icu4c-52_2-src.tgz; then
-		printnew -red "下载失败, 程序终止."
-		exit 1
-	fi
-    tar zxvf icu4c-52_2-src.tgz
-    rm -f icu4c-52_2-src.tgz
-    cd icu/source
-    mkdir /usr/local/icu
-    ./configure --prefix=/usr/local/icu
-    make && make install && export PKG_CONFIG_PATH="/usr/local/icu/lib/pkgconfig"
-    cd -
-    rm -rf icu
+	[[ ! -x /usr/local/icu/bin/icu-config ]] && {
+		printnew -green "下载icu4c-52_2源码包..."
+		if ! wget -c https://github.com/unicode-org/icu/releases/download/release-52-2/icu4c-52_2-src.tgz -O icu4c-52_2-src.tgz; then
+			printnew -red "下载失败, 程序终止."
+			exit 1
+		fi
+		tar zxvf icu4c-52_2-src.tgz
+		rm -f icu4c-52_2-src.tgz
+		cd icu/source
+		mkdir /usr/local/icu
+		./configure --prefix=/usr/local/icu
+		make && make install && export PKG_CONFIG_PATH="/usr/local/icu/lib/pkgconfig"
+		cd -
+		rm -rf icu*
+	}
 
 	printnew -green "下载libjpeg源码包..."
 	libjpeg_url=$(curl -skL --retry 3 --connect-timeout 5 https://www.ijg.org/files/ | egrep -io 'jpegsrc.v([0-9]{1,2}|[0-9]{1,2}.[0-9]{1,2})[a-z]{1,2}.tar.gz' | sort -ruV | head -n1 | awk  '{print "https://www.ijg.org/files/"$0}')
