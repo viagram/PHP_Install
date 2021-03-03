@@ -265,13 +265,12 @@ else
 
 	[[ ! -x /usr/local/icu/bin/icu-config ]] && {
 		printnew -green "下载icu4c源码包..."
-		#if ! wget -c https://github.com/unicode-org/icu/releases/download/release-52-2/icu4c-52_2-src.tgz -O icu4c-52_2-src.tgz; then
-        if ! wget -c https://github.com/unicode-org/icu/releases/download/release-68-2/icu4c-68_2-src.tgz -O icu4c-68_2-src.tgz; then
+		if ! wget -c https://github.com/unicode-org/icu/releases/download/release-52-2/icu4c-52_2-src.tgz -O icu4c-52_2-src.tgz; then
 			printnew -red "下载失败, 程序终止."
 			exit 1
 		fi
-		tar zxvf icu4c-68_2-src.tgz
-		rm -f icu4c-68_2-src.tgz
+		tar zxvf icu4c-52_2-src.tgz
+		rm -f icu4c-52_2-src.tgz
 		cd icu/source
 		mkdir /usr/local/icu
 		./configure --prefix=/usr/local/icu
