@@ -175,7 +175,7 @@ else
 		exit 1
 	fi
 	
-	CMAKE_VER=$(cmake --version | egrep -io '([0-9]{1,2}\.){2}[0-9]{1,2}')
+	CMAKE_VER=$(cmake --version | egrep -io '(([0-9]{1,2}\.){2}[0-9]{1,2}|([0-9]{1,2}\.){2}[0-9]{1,2}-[a-z0-9]{1,3})')
 	if version_lt ${CMAKE_VER} '3.15.0'; then
 		printnew -green "下载CMake源码包..."
 		CMAKE_URL=$(curl -sk --retry 3 --connect-timeout 5 'https://github.com/Kitware/CMake/releases/latest' | egrep -io '(([0-9]{1,2}\.){2}[0-9]{1,2}|([0-9]{1,2}\.){2}[0-9]{1,2}-[a-z0-9]{1,3})' | awk '{print "https://github.com/Kitware/CMake/releases/download/v"$0"/cmake-"$0".tar.gz"}')
@@ -262,13 +262,14 @@ else
 	rm -rf ${freetype_dir}
 
 	[[ ! -x /usr/local/icu/bin/icu-config ]] && {
-		printnew -green "下载icu4c-52_2源码包..."
-		if ! wget -c https://github.com/unicode-org/icu/releases/download/release-52-2/icu4c-52_2-src.tgz -O icu4c-52_2-src.tgz; then
+		printnew -green "下载icu4c源码包..."
+		#if ! wget -c https://github.com/unicode-org/icu/releases/download/release-52-2/icu4c-52_2-src.tgz -O icu4c-52_2-src.tgz; then
+        if ! wget -c https://github.com/unicode-org/icu/releases/download/release-68-2/icu4c-68_2-src.tgz -O icu4c-68_2-src.tgz; then
 			printnew -red "下载失败, 程序终止."
 			exit 1
 		fi
-		tar zxvf icu4c-52_2-src.tgz
-		rm -f icu4c-52_2-src.tgz
+		tar zxvf icu4c-68_2-src.tgz
+		rm -f icu4c-68_2-src.tgz
 		cd icu/source
 		mkdir /usr/local/icu
 		./configure --prefix=/usr/local/icu
