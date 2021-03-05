@@ -146,12 +146,12 @@ else
 		dnf -y install gcc gcc-c++ kernel-devel oniguruma bzip2-devel libxml2-devel curl-devel  libjpeg-devel libpng-devel \
 			p7zip-plugins freetype-devel pcre-devel zlib-devel sqlite-devel unzip bzip2 mhash-devel openssl-devel  \
 			libmcrypt libmcrypt-devel libtool-ltdl libtool-ltdl-devel wget
-            ! command -v cmake && dnf -y install cmake
+			! command -v cmake && dnf -y install cmake
 	else
 		yum -y install gcc gcc-c++ kernel-devel kernel-ml-devel-$(uname -r) oniguruma oniguruma-devel bzip2-devel libxml2-devel curl-devel db4-devel libjpeg-devel libpng-devel \
 			p7zip-plugins freetype-devel pcre-devel zlib-devel sqlite-devel unzip bzip2 mhash-devel openssl-devel php-mcrypt \
 		libmcrypt libmcrypt-devel libtool-ltdl libtool-ltdl-devel wget
-        ! command -v cmake && yum -y install cmake
+		! command -v cmake && yum -y install cmake
 	fi
 	ln -sf $(which 7z) /usr/bin/7zr
 	cd ${cur_dir}
@@ -274,10 +274,12 @@ else
 		cd icu/source
 		mkdir /usr/local/icu
 		./configure --prefix=/usr/local/icu
-		make && make install && export PKG_CONFIG_PATH="/usr/local/icu/lib/pkgconfig"
+		make && make install
 		cd -
 		rm -rf icu*
 	}
+	
+	export PKG_CONFIG_PATH="/usr/local/icu/lib/pkgconfig"
 
 	printnew -green "下载libjpeg源码包..."
 	libjpeg_url=$(curl -skL --retry 3 --connect-timeout 5 https://www.ijg.org/files/ | egrep -io 'jpegsrc.v([0-9]{1,2}|[0-9]{1,2}.[0-9]{1,2})[a-z]{1,2}.tar.gz' | sort -ruV | head -n1 | awk  '{print "https://www.ijg.org/files/"$0}')
