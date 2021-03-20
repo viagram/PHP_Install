@@ -73,7 +73,7 @@ function printnew(){
 function CheckCommand(){
 	local name=""
 	for name in $(echo "$1" | sed 's/,/\n/g' | sed '/^$/d' | sed 's/^[ \t]*//g' | sed 's/[ \t]*$//g'); do
-		if ! command -v ${name} >/dev/null 2>&1; then
+		if ! which ${name} >/dev/null 2>&1; then
 			[[ "${name}" == "pip" ]] && name="python-pip"
 			[[ "${name}" == "setsid" ]] && name="util-linux"
 			[[ "${name}" == "crontab" ]] && name="vixie-cron"
@@ -146,12 +146,12 @@ else
 		dnf -y install gcc gcc-c++ kernel-devel oniguruma bzip2-devel libxml2-devel curl-devel  libjpeg-devel libpng-devel \
 			p7zip-plugins freetype-devel pcre-devel zlib-devel sqlite-devel unzip bzip2 mhash-devel openssl-devel  \
 			libmcrypt libmcrypt-devel libtool-ltdl libtool-ltdl-devel wget
-			! command -v cmake && dnf -y install cmake
+			! which cmake && dnf -y install cmake
 	else
 		yum -y install gcc gcc-c++ kernel-devel kernel-ml-devel-$(uname -r) oniguruma oniguruma-devel bzip2-devel libxml2-devel curl-devel db4-devel libjpeg-devel libpng-devel \
 			p7zip-plugins freetype-devel pcre-devel zlib-devel sqlite-devel unzip bzip2 mhash-devel openssl-devel php-mcrypt \
 		libmcrypt libmcrypt-devel libtool-ltdl libtool-ltdl-devel wget
-		! command -v cmake && yum -y install cmake
+		! which cmake && yum -y install cmake
 	fi
 	ln -sf $(which 7z) /usr/bin/7zr
 	cd ${cur_dir}
@@ -196,7 +196,7 @@ else
 		else
 			printnew -green "解压成功"
 		fi
-		CMAKE_CMD=$(command -v cmake)
+		CMAKE_CMD=$(which cmake)
 		[[ -z ${CMAKE_CMD} ]] && CMAKE_CMD=/usr/bin/cmake || yum remove -y cmake
 		cd ${CMAKE_DIR}
 		printnew -green "开始配置${CMAKE_DIR}..."
