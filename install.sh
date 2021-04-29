@@ -86,6 +86,18 @@ function CheckCommand(){
     done
 }
 
+function install_cmake(){
+    printnew -green "安装CMake..."
+    which cmake >/dev/null 2>&1 && yum remove -y cmake
+    cmake_ver_1=$(curl -skL https://cmake.org/files/ | egrep -io 'v[0-9]{1,2}\.[0-9]{1,2}' | sort -ruV | head -n1)
+    cmake_ver_2=$(curl -skL https://cmake.org/files/${cmake_ver_1}/ | egrep -io 'cmake-[0-9]{1,2}\.[0-9]{1,2}\.[0-9]{1,2}(|-rc5)-linux-x86_64.sh' | sort -ruV | head -n1)
+    cmake_down_url="https://cmake.org/files/${cmake_ver_1}/${cmake_ver_2}"
+    curl -skL "${cmake_down_url}" -o "${cmake_ver_2}"
+    bash "${cmake_ver_2}" --prefix=/usr/ --exclude-subdir
+    rm -f "${cmake_ver_2}"
+    source /etc/profile
+}
+
 function version_gt() { test "$(echo "$@" | tr " " "\n" | sort -V | head -n 1)" != "$1";} #大于
 function version_ge() { test "$(echo "$@" | tr " " "\n" | sort -rV | head -n 1)" == "$1";} #大于或等于
 function version_lt() { test "$(echo "$@" | tr " " "\n" | sort -rV | head -n 1)" != "$1";} #小于
@@ -146,12 +158,10 @@ else
         dnf -y install gcc gcc-c++ kernel-devel oniguruma bzip2-devel libxml2-devel curl-devel  libjpeg-devel libpng-devel \
             p7zip-plugins freetype-devel pcre-devel zlib-devel sqlite-devel unzip bzip2 mhash-devel openssl-devel  \
             libmcrypt libmcrypt-devel libtool-ltdl libtool-ltdl-devel wget
-            ! which cmake && dnf -y install cmake
     else
         yum -y install gcc gcc-c++ kernel-devel kernel-ml-devel-$(uname -r) oniguruma oniguruma-devel bzip2-devel libxml2-devel curl-devel db4-devel libjpeg-devel libpng-devel \
             p7zip-plugins freetype-devel pcre-devel zlib-devel sqlite-devel unzip bzip2 mhash-devel openssl-devel php-mcrypt \
         libmcrypt libmcrypt-devel libtool-ltdl libtool-ltdl-devel wget
-        ! which cmake && yum -y install cmake
     fi
     ln -sf $(which 7z) /usr/bin/7zr
     cd ${cur_dir}
@@ -179,36 +189,7 @@ else
     
     CMAKE_VER=$(cmake --version 2>/dev/null | egrep -io '(([0-9]{1,2}\.){2}[0-9]{1,2}|([0-9]{1,2}\.){2}[0-9]{1,2}-[a-z0-9]{1,3})' | echo 0.0.0)
     if version_lt ${CMAKE_VER} '3.15.0'; then
-        printnew -green "下载CMake源码包..."
-        CMAKE_URL=$(curl -sk --retry 3 --connect-timeout 5 'https://github.com/Kitware/CMake/releases/latest' | egrep -io '(([0-9]{1,2}\.){2}[0-9]{1,2}|([0-9]{1,2}\.){2}[0-9]{1,2}-[a-z0-9]{1,3})' | awk '{print "https://github.com/Kitware/CMake/releases/download/v"$0"/cmake-"$0".tar.gz"}')
-        CMAKE_FILE=$(basename ${CMAKE_URL})
-        CMAKE_DIR=${CMAKE_FILE//'.tar.gz'/''}
-        #CMAKE_DIR=${CMAKE_FILE/.tar.gz/}
-        [[ -f ${CMAKE_FILE} ]] && rm -f ${CMAKE_FILE}
-        if ! wget -O ${CMAKE_FILE} -c ${CMAKE_URL}; then
-            printnew -red "下载失败, 程序终止."
-            exit 1
-        fi
-        printnew -a -green "解压${CMAKE_FILE}: "
-        if ! tar zxf ${CMAKE_FILE}; then
-            printnew -red "解压失败, 程序终止."
-            exit 1
-        else
-            printnew -green "解压成功"
-        fi
-        CMAKE_CMD=$(which cmake)
-        [[ -z ${CMAKE_CMD} ]] && CMAKE_CMD=/usr/bin/cmake || yum remove -y cmake
-        cd ${CMAKE_DIR}
-        printnew -green "开始配置${CMAKE_DIR}..."
-        ./bootstrap --prefix=/usr
-        printnew -green "开始编译${CMAKE_DIR}..."
-        if ! make; then
-            printnew -red "编译${CMAKE_DIR}失败, 程序终止."
-            exit 1
-        fi
-        make install
-        cd -
-        source /etc/profile
+        install_cmake
 
         printnew -green "下载libzip源码包..."
         LIBZIP_URL=$(curl -skL --retry 3 --connect-timeout 5 https://libzip.org/download/ | egrep -io '/download/libzip-([0-9]{1,2}\.){3}tar.gz' | head -n 1 | awk '{print "https://libzip.org"$0}')
