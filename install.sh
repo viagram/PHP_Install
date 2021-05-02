@@ -115,7 +115,7 @@ else
     if [[ -n ${1} ]]; then
         PHP_NAME='php-'${1}
     else
-        PHP_NAME=$(curl -skL --retry 3 --connect-timeout 5 https://www.php.net/downloads.php | egrep -io '/distributions/php-([0-9]{1,2}.){3}tar.gz' | sort -Vu | awk 'END{print}' | egrep -io 'php-([0-9]{1,2}.){2}[0-9]{1,2}')
+        PHP_NAME=$(curl -skL https://www.php.net/downloads.php | egrep -io '/distributions/php-([0-9]{1,2}.){3}tar.gz' | sort -Vu | awk 'END{print}' | egrep -io 'php-([0-9]{1,2}.){2}[0-9]{1,2}')
     fi
     if ! echo ${PHP_NAME} | egrep -io 'php-([0-9]{1,2}.){2}[0-9]{1,2}' >/dev/null 2>&1; then
         printnew -red "失败, 程序终止."
@@ -174,8 +174,8 @@ else
     fi
     
     printnew -green "下载apcu扩展包..."
-    APCU_URL=$(curl -skL --retry 3 --connect-timeout 5 https://pecl.php.net/package/APCu | egrep -io '/get/apcu-([0-9]{1,2}.){3}tgz' | head -n 1 | awk '{print "https://pecl.php.net"$0}')
-    [[ -z ${APCU_URL} ]] && APCU_URL=$(curl -skL --retry 3 --connect-timeout 5 https://pecl.php.net/package/APCu | egrep -io '/get/apcu-([0-9]{1,2}.){3}tgz' | head -n 1 | awk '{print "https://pecl.php.net"$0}')
+    APCU_URL=$(curl -skL https://pecl.php.net/package/APCu | egrep -io '/get/apcu-([0-9]{1,2}.){3}tgz' | head -n 1 | awk '{print "https://pecl.php.net"$0}')
+    [[ -z ${APCU_URL} ]] && APCU_URL=$(curl -skL https://pecl.php.net/package/APCu | egrep -io '/get/apcu-([0-9]{1,2}.){3}tgz' | head -n 1 | awk '{print "https://pecl.php.net"$0}')
     [[ -z ${APCU_URL} ]] && {
         printnew -red "获取apcu信息失败, 程序终止."
         exit 1
@@ -193,7 +193,7 @@ else
         install_cmake
 
         printnew -green "下载libzip源码包..."
-        LIBZIP_URL=$(curl -skL --retry 3 --connect-timeout 5 https://libzip.org/download/ | egrep -io '/download/libzip-([0-9]{1,2}\.){3}tar.gz' | head -n 1 | awk '{print "https://libzip.org"$0}')
+        LIBZIP_URL=$(curl -skL https://libzip.org/download/ | egrep -io '/download/libzip-([0-9]{1,2}\.){3}tar.gz' | head -n 1 | awk '{print "https://libzip.org"$0}')
         LIBZIP_FILE=$(basename ${LIBZIP_URL})
         LIBZIP_DIR=${LIBZIP_FILE//'.tar.gz'/''}
         #LIBZIP_DIR=${LIBZIP_FILE/.tar.gz/}
@@ -264,7 +264,7 @@ else
     export PKG_CONFIG_PATH="/usr/local/icu/lib/pkgconfig"
 
     printnew -green "下载libjpeg源码包..."
-    libjpeg_url=$(curl -skL --retry 3 --connect-timeout 5 https://www.ijg.org/files/ | egrep -io 'jpegsrc.v([0-9]{1,2}|[0-9]{1,2}.[0-9]{1,2})[a-z]{1,2}.tar.gz' | sort -ruV | head -n1 | awk  '{print "https://www.ijg.org/files/"$0}')
+    libjpeg_url=$(curl -skL https://www.ijg.org/files/ | egrep -io 'jpegsrc.v([0-9]{1,2}|[0-9]{1,2}.[0-9]{1,2})[a-z]{1,2}.tar.gz' | sort -ruV | head -n1 | awk  '{print "https://www.ijg.org/files/"$0}')
     libjpeg_file=$(basename ${libjpeg_url})
     libjpeg_version=$(echo ${libjpeg_file} | egrep -io '([0-9]{1,2}|[0-9]{1,2}.[0-9]{1,2})[a-z]{1,2}')
     if ! wget -c ${libjpeg_url} -O ${libjpeg_file}; then
