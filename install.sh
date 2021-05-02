@@ -33,10 +33,11 @@ function Check_OS(){
     elif echo ${Text} | egrep -io "(centos[a-z ]*6|red[a-z ]*hat[a-z ]*6)" >/dev/null 2>&1; then echo centos6
     elif echo ${Text} | egrep -io "(centos[a-z ]*7|red[a-z ]*hat[a-z ]*7)" >/dev/null 2>&1; then echo centos7
     elif echo ${Text} | egrep -io "(centos[a-z ]*8|red[a-z ]*hat[a-z ]*8)" >/dev/null 2>&1; then echo centos8
+    elif echo ${Text} | egrep -io "(Rocky[a-z ]*8|red[a-z ]*hat[a-z ]*8)" >/dev/null 2>&1; then echo rockylinux8
     elif echo ${Text} | egrep -io "Fedora[a-z ]*[0-9]{1,2}" >/dev/null 2>&1; then echo fedora
     elif echo ${Text} | egrep -io "debian[a-z /]*[0-9]{1,2}" >/dev/null 2>&1; then echo debian
     elif echo ${Text} | egrep -io "ubuntu" >/dev/null 2>&1; then echo ubuntu
-    fi
+   fi
 }
 
 function printnew(){
@@ -80,7 +81,7 @@ function CheckCommand(){
             printnew -a -green "    正在安装: "
             printnew -yellow ${name}
             [[ "$(Check_OS)" == "centos6" || "$(Check_OS)" == "centos7" ]] && yum install -y ${name} >/dev/null 2>&1
-            [[ "$(Check_OS)" == "fedora" ]] && dnf install -y ${name} >/dev/null 2>&1
+            [[ "$(Check_OS)" == "fedora" || "$(Check_OS)" == "centos8" || "$(Check_OS)" == "rockylinux8" ]] && dnf install -y ${name} >/dev/null 2>&1
             [[ "$(Check_OS)" == "ubuntu" ]] && apt install -y ${name} >/dev/null 2>&1
         fi
     done
@@ -106,7 +107,7 @@ function version_le() { test "$(echo "$@" | tr " " "\n" | sort -V | head -n 1)" 
 ####################################################################################################################
 cur_dir=${my_dir}
     
-if [[ "$(Check_OS)" != "centos8" && "$(Check_OS)" != "centos7" && "$(Check_OS)" != "centos6" ]]; then
+if [[  "$(Check_OS)" != "rockylinux8" && "$(Check_OS)" != "centos8" && "$(Check_OS)" != "centos7" && "$(Check_OS)" != "centos6" ]]; then
     printnew -red "目前仅支持CentOS6,7及Redhat6,7,8系统."
     exit 1
 else
@@ -154,7 +155,7 @@ else
     
     printnew -green "更新和安装必备组件包..."
     yum groupinstall -y "Development Tools"
-    if [[ "$(Check_OS)" == "centos8" ]]; then
+    if [[ "$(Check_OS)" == "centos8" ||  "$(Check_OS)" == "rockylinux8" ]]; then
         dnf -y install gcc gcc-c++ kernel-devel oniguruma bzip2-devel libxml2-devel curl-devel  libjpeg-devel libpng-devel \
             p7zip-plugins freetype-devel pcre-devel zlib-devel sqlite-devel unzip bzip2 mhash-devel openssl-devel  \
             libmcrypt libmcrypt-devel libtool-ltdl libtool-ltdl-devel wget
@@ -356,7 +357,7 @@ else
     sed -i "s/${fpm_fixd}/pm.max_requests = 100/g" ${PREFIX}/etc/php-fpm.d/www.conf
     # 安装php-fpm服务
     printnew -green "安装php-fpm服务..."
-    if [[ "$(Check_OS)" == "centos7" ]]; then
+    if [[ "$(Check_OS)" == "centos7" ||  "$(Check_OS)" == "centos8" ||  "$(Check_OS)" == "rockylinux8" ]]; then
         [[ ! -f CentOS-7 ]] && wget -c https://raw.githubusercontent.com/viagram/PHP_Install/master/CentOS-7 -O CentOS-7
         sed -i "s/PHP_VERSION/${PHP_NAME}/g" CentOS-7
         if \cp -rf CentOS-7 /usr/lib/systemd/system/php-fpm.service; then
