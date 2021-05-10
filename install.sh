@@ -4,6 +4,7 @@
 PATH=/bin:/sbin:/usr/bin:/usr/sbin:/usr/local/bin:/usr/local/sbin:~/bin
 export PATH
 
+UA='Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/83.0.4103.97 Safari/537.36'
 my_path="$(dirname $(readlink -f $0))/$(basename $0)"
 my_dir="$(dirname ${my_path})"
 
@@ -29,15 +30,15 @@ fi
 
 function Check_OS(){
     Text=$(cat /etc/*-release)
-    if echo ${Text} | egrep -io "(centos[a-z ]*5|red[a-z ]*hat[a-z ]*5)" >/dev/null 2>&1; then echo centos5
-    elif echo ${Text} | egrep -io "(centos[a-z ]*6|red[a-z ]*hat[a-z ]*6)" >/dev/null 2>&1; then echo centos6
-    elif echo ${Text} | egrep -io "(centos[a-z ]*7|red[a-z ]*hat[a-z ]*7)" >/dev/null 2>&1; then echo centos7
-    elif echo ${Text} | egrep -io "(centos[a-z ]*8|red[a-z ]*hat[a-z ]*8)" >/dev/null 2>&1; then echo centos8
-    elif echo ${Text} | egrep -io "(Rocky[a-z ]*8|red[a-z ]*hat[a-z ]*8)" >/dev/null 2>&1; then echo rockylinux8
-    elif echo ${Text} | egrep -io "Fedora[a-z ]*[0-9]{1,2}" >/dev/null 2>&1; then echo fedora
-    elif echo ${Text} | egrep -io "debian[a-z /]*[0-9]{1,2}" >/dev/null 2>&1; then echo debian
-    elif echo ${Text} | egrep -io "ubuntu" >/dev/null 2>&1; then echo ubuntu
-   fi
+    echo ${Text} | egrep -iq "(centos[a-z ]*5|red[a-z ]*hat[a-z ]*5)" && echo centos5 && return
+    echo ${Text} | egrep -iq "(centos[a-z ]*6|red[a-z ]*hat[a-z ]*6)" && echo centos6 && return
+    echo ${Text} | egrep -iq "(centos[a-z ]*7|red[a-z ]*hat[a-z ]*7)" && echo centos7 && return
+    echo ${Text} | egrep -iq "(centos[a-z ]*8|red[a-z ]*hat[a-z ]*8)" && echo centos8 && return
+    echo ${Text} | egrep -iq "(Rocky[a-z ]*8|red[a-z ]*hat[a-z ]*8)" && echo rockylinux8 && return
+    echo ${Text} | egrep -iq "debian[a-z /]*[0-9]{1,2}" && echo debian && return
+    echo ${Text} | egrep -iq "Fedora[a-z ]*[0-9]{1,2}" && echo fedora && return
+    echo ${Text} | egrep -iq "OpenWRT[a-z ]*" && echo openwrt && return
+    echo ${Text} | egrep -iq "ubuntu" && echo ubuntu && return
 }
 
 function printnew(){
@@ -168,7 +169,7 @@ else
     cd ${cur_dir}
     printnew -green "下载${PHP_NAME}源码包..."
     [[ -f ${PHP_NAME}.tar.gz ]] && rm -f ${PHP_NAME}.tar.gz
-    if ! wget -O ${PHP_NAME}.tar.gz -c https://www.php.net/distributions/${PHP_NAME}.tar.gz --no-check-certificate; then
+    if ! wget -U "${UA}" --no-check-certificate  -O ${PHP_NAME}.tar.gz -c https://www.php.net/distributions/${PHP_NAME}.tar.gz; then
         printnew -red "下载失败, 程序终止."
         exit 1
     fi
@@ -183,7 +184,7 @@ else
     APCU_FILE=$(basename ${APCU_URL})
     APCU_DIR=${APCU_FILE%.*}
     [[ -f ${APCU_FILE} ]] && rm -f ${APCU_FILE}
-    if ! wget -O ${APCU_FILE} -c ${APCU_URL}; then
+    if ! wget -U "${UA}" --no-check-certificate  -O ${APCU_FILE} -c ${APCU_URL}; then
         printnew -red "下载失败, 程序终止."
         exit 1
     fi
@@ -198,7 +199,7 @@ else
         LIBZIP_DIR=${LIBZIP_FILE//'.tar.gz'/''}
         #LIBZIP_DIR=${LIBZIP_FILE/.tar.gz/}
         [[ -f ${LIBZIP_FILE} ]] && rm -f ${LIBZIP_FILE}
-        if ! wget -O ${LIBZIP_FILE} -c ${LIBZIP_URL}; then
+        if ! wget -U "${UA}" --no-check-certificate  -O ${LIBZIP_FILE} -c ${LIBZIP_URL}; then
             printnew -red "下载失败, 程序终止."
             exit 1
         fi
@@ -233,7 +234,7 @@ else
     freetype_url=$(curl -sk https://download.savannah.gnu.org/releases/freetype/ | egrep -io 'freetype-[0-9]{1,2}.[0-9]{1,2}.([0-9]{1,2}|[0-9]{1,2}.[0-9]{1,2}).tar.gz' | sort -ruV | head -n1 | awk  '{print "https://download.savannah.gnu.org/releases/freetype/"$0}')
     freetype_file=$(basename ${freetype_url})
     freetype_dir=$(echo ${freetype_file} | sed 's/.tar.gz//g')
-    if ! wget -c ${freetype_url} -O ${freetype_file}; then
+    if ! wget -U "${UA}" --no-check-certificate  -c ${freetype_url} -O ${freetype_file}; then
         printnew -red "下载失败, 程序终止."
         exit 1
     fi
@@ -247,7 +248,7 @@ else
 
     [[ ! -x /usr/local/icu/bin/icu-config ]] && {
         printnew -green "下载icu4c源码包..."
-        if ! wget -c https://github.com/unicode-org/icu/releases/download/release-52-2/icu4c-52_2-src.tgz -O icu4c-52_2-src.tgz; then
+        if ! wget -U "${UA}" --no-check-certificate  -c https://github.com/unicode-org/icu/releases/download/release-52-2/icu4c-52_2-src.tgz -O icu4c-52_2-src.tgz; then
             printnew -red "下载失败, 程序终止."
             exit 1
         fi
@@ -267,7 +268,7 @@ else
     libjpeg_url=$(curl -skL https://www.ijg.org/files/ | egrep -io 'jpegsrc.v([0-9]{1,2}|[0-9]{1,2}.[0-9]{1,2})[a-z]{1,2}.tar.gz' | sort -ruV | head -n1 | awk  '{print "https://www.ijg.org/files/"$0}')
     libjpeg_file=$(basename ${libjpeg_url})
     libjpeg_version=$(echo ${libjpeg_file} | egrep -io '([0-9]{1,2}|[0-9]{1,2}.[0-9]{1,2})[a-z]{1,2}')
-    if ! wget -c ${libjpeg_url} -O ${libjpeg_file}; then
+    if ! wget -U "${UA}" --no-check-certificate  -c ${libjpeg_url} -O ${libjpeg_file}; then
         printnew -red "下载失败, 程序终止."
         exit 1
     fi
@@ -311,7 +312,7 @@ else
     mkdir -p ${PREFIX}/etc/php.d
     \cp -rf ${PREFIX}/etc/php-fpm.conf.default ${PREFIX}/etc/php-fpm.conf
     \cp -rf ${PREFIX}/etc/php-fpm.d/www.conf.default ${PREFIX}/etc/php-fpm.d/www.conf
-    [[ ! -f php.ini ]] && wget -c https://raw.githubusercontent.com/viagram/PHP_Install/master/php.ini -O php.ini
+    [[ ! -f php.ini ]] && wget -U "${UA}" --no-check-certificate  -c https://raw.githubusercontent.com/viagram/PHP_Install/master/php.ini -O php.ini
     \cp -rf php.ini ${PREFIX}/lib/php.ini
 
     phpext_dir=$(${PREFIX}/bin/php-config --extension-dir)
@@ -358,7 +359,7 @@ else
     # 安装php-fpm服务
     printnew -green "安装php-fpm服务..."
     if [[ "$(Check_OS)" == "centos7" ||  "$(Check_OS)" == "centos8" ||  "$(Check_OS)" == "rockylinux8" ]]; then
-        [[ ! -f CentOS-7 ]] && wget -c https://raw.githubusercontent.com/viagram/PHP_Install/master/CentOS-7 -O CentOS-7
+        [[ ! -f CentOS-7 ]] && wget -U "${UA}" --no-check-certificate  -c https://raw.githubusercontent.com/viagram/PHP_Install/master/CentOS-7 -O CentOS-7
         sed -i "s/PHP_VERSION/${PHP_NAME}/g" CentOS-7
         if \cp -rf CentOS-7 /usr/lib/systemd/system/php-fpm.service; then
             chmod 754 /usr/lib/systemd/system/php-fpm.service >/dev/null 2>&1
@@ -374,7 +375,7 @@ else
         fi
     fi
     if [[ "$(Check_OS)" == "centos6" ]]; then
-        [[ ! -f CentOS-6 ]] && wget -c https://raw.githubusercontent.com/viagram/PHP_Install/master/CentOS-6 -O CentOS-6
+        [[ ! -f CentOS-6 ]] && wget -U "${UA}" --no-check-certificate  -c https://raw.githubusercontent.com/viagram/PHP_Install/master/CentOS-6 -O CentOS-6
         sed -i "s/PHP_VERSION/${PHP_NAME}/g" CentOS-6
         if \cp -rf CentOS-6 /etc/rc.d/init.d/php-fpm; then
             chmod 754 /etc/rc.d/init.d/php-fpm >/dev/null 2>&1
