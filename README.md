@@ -13,6 +13,6 @@
 
 安装方法B:
 
-    curl -skL https://github.com/viagram/PHP_Install/archive/master.zip -o master.zip && unzip -o master.zip && rm -f master.zip && cd PHP_Install-master && sh install.sh
+    curl -skL https://codeload.github.com/viagram/PHP_Install/tar.gz/master | tar -zxv && sh PHP_Install-master/install.sh
 
 按提示操作, 基本按几下回车键即可.
