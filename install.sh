@@ -151,6 +151,7 @@ else
     printnew -green "更新和安装必备组件包..."
     yum groupinstall -y "Development Tools"
     if [[ "$(Check_OS)" == "centos8" ||  "$(Check_OS)" == "rockylinux8" ]]; then
+        dnf config-manager --set-enabled powertools -y
         dnf -y install gcc gcc-c++ kernel-devel oniguruma bzip2-devel libxml2-devel curl-devel  libjpeg-devel libpng-devel \
             p7zip-plugins freetype-devel pcre-devel zlib-devel sqlite-devel unzip bzip2 mhash-devel openssl-devel  \
             libmcrypt libmcrypt-devel libtool-ltdl libtool-ltdl-devel wget
