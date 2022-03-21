@@ -184,7 +184,7 @@ else
         exit 1
     fi
     
-    CMAKE_VER=$(cmake --version 2>/dev/null | egrep -io '(([0-9]{1,2}\.){2}[0-9]{1,2}|([0-9]{1,2}\.){2}[0-9]{1,2}-[a-z0-9]{1,3})' | echo 0.0.0)
+    CMAKE_VER=$(cmake --version 2>/dev/null | egrep -io '(([0-9]{1,2}\.){2}[0-9]{1,2}|([0-9]{1,2}\.){2}[0-9]{1,2}-[a-z0-9]{1,3})' || echo 0.0.0)
     if version_lt ${CMAKE_VER} '3.15.0'; then
         install_cmake
 
