@@ -86,7 +86,7 @@ function install_cmake(){
     printnew -green "安装CMake..."
     which cmake >/dev/null 2>&1 && yum remove -y cmake
     cmake_ver_1=$(curl -#kL https://cmake.org/files/ | egrep -io 'v[0-9]{1,2}\.[0-9]{1,2}' | sort -ruV | head -n1)
-    cmake_ver_2=$(curl -#kL https://cmake.org/files/${cmake_ver_1}/ | egrep -io 'cmake-[0-9]{1,2}\.[0-9]{1,2}\.[0-9]{1,2}(|-rc5)-linux-x86_64.sh' | sort -ruV | head -n1)
+    cmake_ver_2=$(curl -#kL https://cmake.org/files/${cmake_ver_1}/ | egrep -io 'cmake-[0-9]{1,2}\.[0-9]{1,2}\.[0-9]{1,2}-(|rc[0-9]{1,3}-)linux-x86_64.sh' | sort -ruV | head -n1)
     cmake_down_url="https://cmake.org/files/${cmake_ver_1}/${cmake_ver_2}"
     curl -#kL "${cmake_down_url}" -o "${cmake_ver_2}"
     bash "${cmake_ver_2}" --prefix=/usr/ --exclude-subdir
