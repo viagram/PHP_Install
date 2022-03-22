@@ -154,7 +154,7 @@ else
         dnf config-manager --set-enabled powertools -y
         dnf -y install gcc gcc-c++ kernel-devel oniguruma oniguruma-devel bzip2-devel libxml2-devel curl-devel  libjpeg-devel libpng-devel \
             p7zip-plugins freetype-devel pcre-devel zlib-devel sqlite-devel unzip bzip2 mhash-devel openssl-devel  \
-            libmcrypt libmcrypt-devel libtool-ltdl libtool-ltdl-devel wget
+            libmcrypt libmcrypt-devel libtool-ltdl libtool-ltdl-devel wget sqlite
     else
         yum -y install gcc gcc-c++ kernel-devel kernel-ml-devel-$(uname -r) oniguruma oniguruma-devel bzip2-devel libxml2-devel curl-devel db4-devel libjpeg-devel libpng-devel \
             p7zip-plugins freetype-devel pcre-devel zlib-devel sqlite-devel unzip bzip2 mhash-devel openssl-devel php-mcrypt \
