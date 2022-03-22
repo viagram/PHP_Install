@@ -84,7 +84,7 @@ function CheckCommand(){
 
 function install_cmake(){
     printnew -green "安装CMake..."
-    which cmake >/dev/null 2>&1 && yum remove -y cmake
+    which cmake >/dev/null 2>&1 && dnf remove -y cmake
     cmake_ver_1=$(curl -#kL https://cmake.org/files/ | egrep -io 'v[0-9]{1,2}\.[0-9]{1,2}' | sort -ruV | head -n1)
     cmake_ver_2=$(curl -#kL https://cmake.org/files/${cmake_ver_1}/ | egrep -io 'cmake-[0-9]{1,2}\.[0-9]{1,2}\.[0-9]{1,2}-(|rc[0-9]{1,3}-)linux-x86_64.sh' | sort -ruV | head -n1)
     cmake_down_url="https://cmake.org/files/${cmake_ver_1}/${cmake_ver_2}"
@@ -149,7 +149,7 @@ else
     fi
     
     printnew -green "更新和安装必备组件包..."
-    yum groupinstall -y "Development Tools"
+    dnf groupinstall -y "Development Tools"
     if [[ "$(Check_OS)" == "centos8" ||  "$(Check_OS)" == "rockylinux8" ]]; then
         dnf config-manager --set-enabled powertools -y
         dnf -y install gcc gcc-c++ kernel-devel oniguruma oniguruma-devel bzip2-devel libxml2-devel curl-devel  libjpeg-devel libpng-devel \
@@ -183,7 +183,8 @@ else
         printnew -red "下载失败, 程序终止."
         exit 1
     fi
-    
+
+    ! which cmake && dnf install cmake -y
     CMAKE_VER=$(cmake --version 2>/dev/null | egrep -io '(([0-9]{1,2}\.){2}[0-9]{1,2}|([0-9]{1,2}\.){2}[0-9]{1,2}-[a-z0-9]{1,3})' || echo 0.0.0)
     if version_lt ${CMAKE_VER} '3.15.0'; then
         install_cmake
