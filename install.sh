@@ -30,16 +30,16 @@ fi
 
 function Check_OS(){
     Text=$(cat /etc/*-release)
-    echo ${Text} | egrep -iq "(centos[a-z ]*5|red[a-z ]*hat[a-z ]*5)" && echo centos5 && return
-    echo ${Text} | egrep -iq "(centos[a-z ]*6|red[a-z ]*hat[a-z ]*6)" && echo centos6 && return
-    echo ${Text} | egrep -iq "(centos[a-z ]*7|red[a-z ]*hat[a-z ]*7)" && echo centos7 && return
-    echo ${Text} | egrep -iq "(centos[a-z ]*8|red[a-z ]*hat[a-z ]*8)" && echo centos8 && return
-    echo ${Text} | egrep -iq "(Rocky[a-z ]*8|red[a-z ]*hat[a-z ]*8)" && echo rockylinux8 && return
-    echo ${Text} | egrep -iq "debian[a-z /]*[0-9]{1,2}" && echo debian && return
-    echo ${Text} | egrep -iq "Fedora[a-z ]*[0-9]{1,2}" && echo fedora && return
-    echo ${Text} | egrep -iq "OpenWRT[a-z ]*" && echo openwrt && return
-    echo ${Text} | egrep -iq "ubuntu[[:space:]]*20\." && echo ubuntu20 && return
-    echo ${Text} | egrep -iq "ubuntu" && echo ubuntu && return
+    echo "${Text}" | egrep -iq "(centos[a-z ]*5|red[a-z ]*hat[a-z ]*5)" && echo centos5 && return
+    echo "${Text}" | egrep -iq "(centos[a-z ]*6|red[a-z ]*hat[a-z ]*6)" && echo centos6 && return
+    echo "${Text}" | egrep -iq "(centos[a-z ]*7|red[a-z ]*hat[a-z ]*7)" && echo centos7 && return
+    echo "${Text}" | egrep -iq "(centos[a-z ]*8|red[a-z ]*hat[a-z ]*8)" && echo centos8 && return
+    echo "${Text}" | egrep -iq "Rocky Linux release [0-9]{1,2}\.[0-9]{1,2}" && echo rockylinux && return
+    echo "${Text}" | egrep -iq "debian[a-z /]*[0-9]{1,2}" && echo debian && return
+    echo "${Text}" | egrep -iq "Fedora[a-z ]*[0-9]{1,2}" && echo fedora && return
+    echo "${Text}" | egrep -iq "OpenWRT[a-z ]*" && echo openwrt && return
+    echo "${Text}" | egrep -iq "ubuntu[[:space:]]*20\." && echo ubuntu20 && return
+    echo "${Text}" | egrep -iq "ubuntu" && echo ubuntu && return
 }
 
 function printnew(){
@@ -76,7 +76,7 @@ function CheckCommand(){
             printnew -a -green "    正在安装: "
             printnew -yellow ${name}
             [[ "$(Check_OS)" == "centos6" || "$(Check_OS)" == "centos7" ]] && yum install -y ${name} >/dev/null 2>&1
-            [[ "$(Check_OS)" == "fedora" || "$(Check_OS)" == "centos8" || "$(Check_OS)" == "rockylinux8" ]] && dnf install -y ${name} >/dev/null 2>&1
+            [[ "$(Check_OS)" == "fedora" || "$(Check_OS)" == "centos8" || "$(Check_OS)" == "rockylinux" ]] && dnf install -y ${name} >/dev/null 2>&1
             [[ "$(Check_OS)" == "ubuntu" ]] && apt install -y ${name} >/dev/null 2>&1
         fi
     done
@@ -102,7 +102,7 @@ function version_le() { test "$(echo "$@" | tr " " "\n" | sort -V | head -n 1)" 
 ####################################################################################################################
 cur_dir=${my_dir}
     
-if [[  "$(Check_OS)" != "rockylinux8" && "$(Check_OS)" != "centos8" && "$(Check_OS)" != "centos7" && "$(Check_OS)" != "centos6" ]]; then
+if [[  "$(Check_OS)" != "rockylinux" && "$(Check_OS)" != "centos8" && "$(Check_OS)" != "centos7" && "$(Check_OS)" != "centos6" ]]; then
     printnew -red "目前仅支持CentOS6,7及Redhat6,7,8系统."
     exit 1
 else
@@ -150,7 +150,7 @@ else
     
     printnew -green "更新和安装必备组件包..."
     dnf groupinstall -y "Development Tools"
-    if [[ "$(Check_OS)" == "centos8" ||  "$(Check_OS)" == "rockylinux8" ]]; then
+    if [[ "$(Check_OS)" == "centos8" ||  "$(Check_OS)" == "rockylinux" ]]; then
         dnf config-manager --set-enabled powertools -y
         dnf -y install gcc gcc-c++ kernel-devel oniguruma oniguruma-devel bzip2-devel libxml2-devel curl-devel  libjpeg-devel libpng-devel \
             p7zip-plugins freetype-devel pcre-devel zlib-devel sqlite-devel unzip bzip2 mhash-devel openssl-devel  \
@@ -353,7 +353,7 @@ else
     sed -i "s/${fpm_fixd}/pm.max_requests = 100/g" ${PREFIX}/etc/php-fpm.d/www.conf
     # 安装php-fpm服务
     printnew -green "安装php-fpm服务..."
-    if [[ "$(Check_OS)" == "centos7" ||  "$(Check_OS)" == "centos8" ||  "$(Check_OS)" == "rockylinux8" ]]; then
+    if [[ "$(Check_OS)" == "centos7" ||  "$(Check_OS)" == "centos8" ||  "$(Check_OS)" == "rockylinux" ]]; then
         [[ ! -f CentOS-7 ]] && curl -A "${UA}" -#kLo CentOS-7 https://raw.githubusercontent.com/viagram/PHP_Install/master/CentOS-7
         sed -i "s/PHP_VERSION/${PHP_NAME}/g" CentOS-7
         if \cp -rf CentOS-7 /usr/lib/systemd/system/php-fpm.service; then
